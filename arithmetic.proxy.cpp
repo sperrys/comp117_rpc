@@ -100,6 +100,69 @@ string handle_int(string name, int my_int) {
   return param;
 }
 
+string handle_bool(string name, bool my_bool) {
+  vector<string> param_pairs;
+
+  // value to string conversion
+  string type = "bool";
+  stringstream value;
+  value << my_bool;
+
+  // compose the inner description object
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str()));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type));
+
+  // compose the outer object keyed by the param's name
+  vector<string> name_key;
+  name_key.push_back(serialize_pair(name, serialize_object(param_pairs)));
+  string param = serialize_object(name_key);
+
+  cout << "object for " << name << ": " << serialize_object(param_pairs) << "\n";
+
+  return param;
+}
+
+string handle_string(string name, string my_string) {
+
+  vector<string> param_pairs;
+  string type = "string";
+
+  // compose the inner description object
+  param_pairs.push_back(serialize_pair(VALUE_KEY, my_string));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type));
+
+  // compose the outer object keyed by the param's name
+  vector<string> name_key;
+  name_key.push_back(serialize_pair(name, serialize_object(param_pairs)));
+  string param = serialize_object(name_key);
+
+  cout << "object for " << name << ": " << serialize_object(param_pairs) << "\n";
+
+  return param;
+}
+
+string handle_char(string name, char my_char) {
+  vector<string> param_pairs;
+
+  // value to string conversion
+  string type = "char";
+  stringstream value;
+  value << my_char;
+
+  // compose the inner description object
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str()));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type));
+
+  // compose the outer object keyed by the param's name
+  vector<string> name_key;
+  name_key.push_back(serialize_pair(name, serialize_object(param_pairs)));
+  string param = serialize_object(name_key);
+
+  cout << "object for " << name << ": " << serialize_object(param_pairs) << "\n";
+
+  return param;
+}
+
 int add(int x, int y) {
   // {
   //   "method_name": "add",
