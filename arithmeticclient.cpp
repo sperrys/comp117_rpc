@@ -23,7 +23,7 @@
 //        an ordinary local application is the call to
 //        rpcproxyinitialize. If you commented that out, you could
 //        link this with the local version of simplefunction.o
-//        (which has the remotable function implementations)			      
+//        (which has the remotable function implementations)            
 //
 //        COMMAND LINE
 //
@@ -45,7 +45,11 @@
 // AND STUBS, AND ALSO USED AS INPUT TO AUTOMATIC PROXY/STUB
 // GENERATOR PROGRAM
 
+using namespace std;          // for C++ std library
+#include <string>
+
 #include "arithmetic.idl"
+#include "lotsofstuff.idl"
 
 #include "rpcproxyhelper.h"
 
@@ -53,7 +57,7 @@
 #include "c150grading.h"
 #include <fstream>
 
-using namespace std;          // for C++ std library
+
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
 // forward declarations
@@ -120,6 +124,33 @@ main(int argc, char *argv[]) {
        printf("Returned from add(10,2). Result=%d\n",result);
 
        // 
+       // Call (possibly remote) sum
+       //
+       printf("Calling sum([10,2,4])\n");
+       int nums[3] = { 10, 2, 4 };
+       result = sum(nums);                          // remote call (we hope!)
+       printf("Returned from sum([10,2,4]). Result=%d\n",result);
+
+       // 
+       // Call (possibly remote) sum
+       //
+       printf("Calling person_func(jack)\n");
+       struct Person jack = { "Jack", "Daniels", 59 };
+       person_func(jack);                          // remote call (we hope!)
+       printf("Returned from person_func(jack). Result=%d\n",result);
+
+       // 
+       // Call (possibly remote) sum
+       //
+       printf("Calling people_func(three)\n");
+       struct Person p_one = { "Jack", "Daniels", 59 };
+       struct Person p_two = { "Henry", "Ford", 32 };
+       struct Person p_three = { "Ben", "Wallibur", 19 };
+       struct ThreePeople three = { p_one, p_two, p_three };
+       people_func(three);                          // remote call (we hope!)
+       printf("Returned from people_func(three). Result=%d\n",result);
+
+       // 
        // Call (possibly remote) subtract
        //
        printf("Calling subtract(10,2)\n");
@@ -149,7 +180,7 @@ main(int argc, char *argv[]) {
      catch (C150Exception e) {
        // Write to debug log
        c150debug->printf(C150ALWAYSLOG,"Caught C150Exception: %s\n",
-			 e.formattedExplanation().c_str());
+       e.formattedExplanation().c_str());
        // In case we're logging to a file, write to the console too
        cerr << argv[0] << ": caught C150NetworkException: " << e.formattedExplanation() << endl;
      }
@@ -234,5 +265,5 @@ void setUpDebugLogging(const char *logname, int argc, char *argv[]) {
      // for the system to run quietly without producing debug output.
      //
      c150debug->enableLogging(C150ALLDEBUG | C150RPCDEBUG | C150APPLICATION | C150NETWORKTRAFFIC | 
-			      C150NETWORKDELIVERY); 
+            C150NETWORKDELIVERY); 
 }

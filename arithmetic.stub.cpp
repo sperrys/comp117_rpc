@@ -39,7 +39,8 @@
 // TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
-#include "simplefunction.idl"
+#include "arithmetic.idl"
+#include "lotsofstuff.idl"
 
 #include "rpcstubhelper.h"
 
