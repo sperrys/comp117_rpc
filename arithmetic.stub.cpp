@@ -39,17 +39,18 @@
 // TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
-#include "simplefunction.idl"
+#include "arithmetic.idl"
 
 #include "rpcstubhelper.h"
 
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include "c150debug.h"
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-void getFunctionNamefromStream();
+void get_json();
 
 // ======================================================================
 //                             STUBS
@@ -67,8 +68,8 @@ void getFunctionNamefromStream();
   
 
 
-void __add(string message) {
-  char doneBuffer[5] = "DONE";  // to write magic value DONE + null
+void __add(string message, int params) {
+  //char doneBuffer[5] = "DONE";  // to write magic value DONE + null
 
   //
   // Time to actually call the function 
@@ -83,9 +84,24 @@ void __add(string message) {
   // where we'd send the return value back.
   //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
-  RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
 
+void __subtract(string json, int params) {
+  //char doneBuffer[5] = "DONE";
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+}
+
+void __multiply(string json, int params) {
+  //char doneBuffer[5] = "DONE";
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+
+}
+
+void __divide(string json, int params) {
+  //char doneBuffer[5] = "DONE";
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+}
 
 //
 //     __badFunction
@@ -93,16 +109,16 @@ void __add(string message) {
 //   Pseudo-stub for missing functions.
 //
 
-void __badFunction(char *functionName) {
-  char doneBuffer[5] = "BAD";  // to write magic value DONE + null
+void __badFunction(string func_name) {
+  //char doneBuffer[5] = "BAD";  // to write magic value DONE + null
 
 
   //
   // Send the response to the client indicating bad function
   //
 
-  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: received call for nonexistent function %s()",functionName);
-  RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: received call for nonexistent function %s()", func_name);
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
 
 
@@ -113,9 +129,18 @@ void __badFunction(char *functionName) {
 //
 // ======================================================================
 
-// forward declaration
-void getFunctionNameFromStream(char *buffer, unsigned int bufSize);
+// JSON FUNCS
+int get_json_size(char *buffer, unsigned int bufSize);
+void get_json(char *buffer, unsigned int bufSize);
 
+// PARSING FUNCS
+string get_func_name(string json);
+int get_num_params(string json);
+
+// STRING TO CPP FUNCS
+int handle_int(string);
+float handle_float(string);
+string handle_string(string);
 
 
 //
@@ -125,62 +150,105 @@ void getFunctionNameFromStream(char *buffer, unsigned int bufSize);
 //
 
 void dispatchFunction() {
+  cout << "Dispatched again";
+  char JsonSizeBuffer[30];
 
+  // Get the Size of the Json 
+  int json_size = get_json_size(JsonSizeBuffer, sizeof(JsonSizeBuffer));
 
-  char functionNameBuffer[50];
+  // Throw Error For Invalid JSON ("Shouldn't be possible?")
+  if(json_size == -1)
+    throw C150Exception("Finding Json Size Failed");
 
-  //
-  // Read the function name from the stream -- note
-  // REPLACE THIS WITH YOUR OWN LOGIC DEPENDING ON THE 
-  // WIRE FORMAT YOU USE
-  //
-  getFunctionNameFromStream(functionNameBuffer, sizeof(functionNameBuffer));
+  // Load the Json into the Buffer
+  char JsonBuffer[json_size];
+  get_json(JsonBuffer, sizeof(JsonBuffer));
+
+  cout << "Loaded Json:" << JsonBuffer << endl;
+
+  //Save the Json as a string 
+  string json_str(JsonBuffer, json_size);
+  //Get the function name from json
+  string func_name = get_func_name(json_str);
+  //Get the num of params from json 
+  int params = get_num_params(json_str);
+
+ 
 
   //
   // We've read the function name, call the stub for the right one
   // The stub will invoke the function and send response.
   //
+  
 
   if (!RPCSTUBSOCKET->eof()) {
-    if (strcmp(functionNameBuffer, "add") == 0)
-      __add();
-    else   if (strcmp(functionNameBuffer, "subtract") == 0)
-      __subtract();
-    else   if (strcmp(functionNameBuffer, "multiply") == 0)
-      __multiply();
-    else   if (strcmp(functionNameBuffer, "divide") == 0)
-      __divide();
+    if (func_name == "add")
+      __add(json_str, params);
+    else   if (func_name == "subtract")
+      __subtract(json_str, params);
+    else   if (func_name == "multiply")
+      __multiply(json_str, params);
+    else   if (func_name == "divide")
+      __divide(json_str, params);
     else
-      __badFunction(functionNameBuffer);
+      __badFunction(func_name);
   }
 }
-
- 
-//
-//                   getFunctionNamefromStream
-//
-//   Helper routine to read function name from the stream. 
-//   Note that this code is the same for all stubs, so can be generated
-//   as boilerplate.
-//
+                 
 //   Important: this routine must leave the sock open but at EOF
-//   when eof is read from client.
-//
-void getFunctionNameFromStream(char *buffer, unsigned int bufSize) {
+//   when eof is read from client. 
+//   This function parses the size of the json message from the socket
+int get_json_size(char *buffer, unsigned int bufSize) {
   unsigned int i;
-  char *bufp;    // next char to read
-  bool readnull;
-  ssize_t readlen;             // amount of data read from socket
-  
-  //
-  // Read a message from the stream
-  // -1 in size below is to leave room for null
-  //
-  readnull = false;
+  char *bufp;      // next char to read
+  ssize_t readlen; // amount of data read from socket
+
   bufp = buffer;
+
   for (i=0; i< bufSize; i++) {
     readlen = RPCSTUBSOCKET-> read(bufp, 1);  // read a byte
-    // check for eof or error
+
+    // if we hit the first comma that delimits size, parse and
+    // convert the size of the json to an int 
+    // +1s are to account for delimiter on both ends
+    // TODO: clean this up, more error handles, better way to do this?
+    if (*bufp == ',') {
+      string s_buffer = string(buffer);
+      unsigned delim_1 = s_buffer.find(':');
+      unsigned delim_2 = s_buffer.find(',');
+      string s_size = s_buffer.substr(delim_1 + 1, delim_2 - (delim_1 +1));
+      cout << "JSON size: " << s_size << endl;
+      return (stoi(s_size));
+    }
+    bufp++;
+
+    // Error Handle 
+    if (readlen == 0) {
+    c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
+      if (RPCSTUBSOCKET-> eof()) {
+        c150debug->printf(C150RPCDEBUG,"simplefunction.stub: EOF signaled on input");
+      } else {
+      throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
+      }
+    }  
+  }
+  // Return Bad Size if Unseen Error
+  return -1;   
+} 
+
+// This function Puts the JSON String in the Buffer
+void get_json(char *buffer, unsigned int bufSize)  {
+  unsigned int i;
+  char *bufp;      // next char to read
+  ssize_t readlen; // amount of data read from socket
+  bool readnull;
+
+  bufp = buffer;
+
+  // + 1 is to deal with null termination
+  for (i=0; i< bufSize + 1; i++) {
+    readlen = RPCSTUBSOCKET-> read(bufp, 1);  // read a byte
+
     if (readlen == 0) {
       break;
     }
@@ -190,12 +258,8 @@ void getFunctionNameFromStream(char *buffer, unsigned int bufSize) {
       break;
     }
   }
-  
-  //
-  // With TCP streams, we should never get a 0 length read
-  // except with timeouts (which we're not setting in pingstreamserver)
-  // or EOF
-  //
+
+  // Error Handling 
   if (readlen == 0) {
     c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
     if (RPCSTUBSOCKET-> eof()) {
@@ -205,18 +269,47 @@ void getFunctionNameFromStream(char *buffer, unsigned int bufSize) {
       throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
     }
   }
-
-  //
   // If we didn't get a null, input message was poorly formatted
-  //
-  else if(!readnull) 
+    else if(!readnull) 
     throw C150Exception("simplefunction.stub: method name not null terminated or too long");
-
-  
-  //
-  // Note that eof may be set here for our caller to check
-  //
-
 }
+
+// Ugly Parses the Function Name from Method, Maybe Find 3rd Party Library?
+// Probably better way to do this? At Very Least modularize?
+string get_func_name(string json) {
+  string func_key = "\"method\":";
+  unsigned function_pos = json.find(func_key);
+  string parsed_json = json.substr(function_pos + func_key.length() + 1, json.npos);
+  unsigned delim = parsed_json.find('\"');
+  return parsed_json.substr(0, delim); 
+}
+
+// Ugly Parses the Num of Params from Method, Maybe Find 3rd Party Library?
+// Probably better way to do this? At Very Least modularize?
+int get_num_params(string json) {
+  string p_num_key = "\"param_count\":";
+  unsigned function_pos = json.find(p_num_key);
+  string parsed_json = json.substr(function_pos + p_num_key.length() + 1, json.npos);
+  unsigned delim = parsed_json.find('\"');
+  return stoi(parsed_json.substr(0, delim)); 
+}
+
+
+// Basic Function That Handle Basic Conversions 
+// from string to CPP types
+
+int handle_int(string int_string) {
+  return stoi(int_string);
+}
+
+string handle_string(string s_string) {
+  return s_string;
+}
+
+float handle_float(string float_string) {
+  return stof(float_string);
+}
+
+
 
 

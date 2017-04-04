@@ -43,6 +43,13 @@ using namespace std;
 const string VALUE_KEY = "value";
 const string TYPE_KEY = "type";
 
+string add_size_to_message(string message) {
+  stringstream m_size; 
+  int length = message.length();
+  m_size << "size:" << length << "," << message;
+  return m_size.str();
+}
+
 string serialize_pair(string key, string value) {
   stringstream pair;
   // only add value quotes if the value isn't an object or an array
@@ -202,9 +209,12 @@ int add(int x, int y) {
   // Finalize the message
   message = serialize_object(pairs);
 
-  cout << "The final message: " << message << "\n";
+  // Add the length of the JSON to the message 
+  message = add_size_to_message(message);
 
-  return 0;
+
+  cout << "The final message: " << message.c_str() << "\n";
+
 
   // Send the remote call
   c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() invoked");

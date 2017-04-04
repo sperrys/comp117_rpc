@@ -116,7 +116,7 @@ main(int argc, char *argv[]) {
        // Call (possibly remote) add
        //
        printf("Calling add(10,2)\n");
-       result = add(10,2);                          // remote call (we hope!)
+       result = add(300,200);                          // remote call (we hope!)
        printf("Returned from add(10,2). Result=%d\n",result);
 
        // 
