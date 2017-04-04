@@ -40,6 +40,7 @@
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
 #include "arithmetic.idl"
+#include "lotsofstuff.idl"
 
 #include "rpcstubhelper.h"
 
