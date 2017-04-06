@@ -1,0 +1,55 @@
+#!/bin/env python
+
+# Python Code For RPC Generation
+# Written by Aaron Bowen and Spencer Perry
+
+import subprocess
+import json
+import sys
+import os
+import rpc_utility_funcs as utils
+
+# Check Command Line 
+filename = utils.CheckArgs(sys.argv)
+
+# Parse declarations into a Python dictionary
+decls = json.loads(subprocess.check_output(["./idl_to_json", filename]))
+
+# Create Proxy and Stub Files to write to 
+# (gen is temporary so we don't mix up handwritten ones)
+# ultimately filename will not have gen attached
+filebase = (os.path.splitext(filename)[0])
+proxy = open(filebase+".genproxy.cpp", 'w')
+stub  = open(filebase+".genstub.cpp", 'w')
+
+# Generate File Comments and Includes for Stub And Proxy
+p_includes = utils.generate_file_head(filename, "PROXY")
+s_includes = utils.generate_file_head(filename, "STUB") 
+
+print(p_includes)
+
+# Write generated file comments, includes, and constants to file
+proxy.write(p_includes)
+stub.write(s_includes)
+
+
+
+function_sigs = []
+type_sigs = []
+
+	
+
+#for  name, sig in decls["types"].iteritems():
+	# Check if type is built in or not
+
+	#if(sig["type_of_type"] == "builtin"):
+	#	continue
+	#else: 
+	#	args = sig["members"]
+	#	argstring = ', '.join([a["type"] + ' ' + a["name"] for a in args])
+	#   print the type 
+	#	print "%s %s(%s)" % (sig["type_of_type"], name, argstring)
+
+
+
+
