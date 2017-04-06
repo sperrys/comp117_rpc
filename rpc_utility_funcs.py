@@ -208,3 +208,26 @@ def StoreFuncSigStrings(json, function_array):
 		function_array.append(func_sig)
 
 	return function_array
+
+
+# functions associated with idl types, dependent on idl 
+def generate_idl_type_func(idl_types, stub_type):
+	return ""
+
+
+# functions associated with idl funcs, dependent on idl 
+def generate_idl_func_func(idl_funcs, stub_type):
+	return ""
+
+
+# generated functions that aren't dependenet on idl 
+def generate_util_funcs(stub_type):
+	return ""
+
+
+
+
+
+
+
+

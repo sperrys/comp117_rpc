@@ -15,10 +15,15 @@ filename = utils.CheckArgs(sys.argv)
 # Parse declarations into a Python dictionary
 decls = json.loads(subprocess.check_output(["./idl_to_json", filename]))
 
+# split up functions and types into iterable lists 
+idl_types = decls["types"].iteritems()
+idl_funcs = decls["functions"].iteritems()
+
 # Create Proxy and Stub Files to write to 
 # (gen is temporary so we don't mix up handwritten ones)
 # ultimately filename will not have gen attached
 filebase = (os.path.splitext(filename)[0])
+
 proxy = open(filebase+".genproxy.cpp", 'w')
 stub  = open(filebase+".genstub.cpp", 'w')
 
@@ -26,30 +31,41 @@ stub  = open(filebase+".genstub.cpp", 'w')
 p_includes = utils.generate_file_head(filename, "PROXY")
 s_includes = utils.generate_file_head(filename, "STUB") 
 
-print(p_includes)
-
 # Write generated file comments, includes, and constants to file
 proxy.write(p_includes)
 stub.write(s_includes)
 
+# Generate general utlity functions for each file 
+# these functions are not specific to the idl, think handle_int()
+# deals with basic serialization and deserialiation determined by type
+p_util_funcs = utils.generate_util_funcs("PROXY")
+s_util_funcs = utils.generate_util_funcs("STUB")
 
+# Write the generated code for the general utility function to 
+# the respective file
+proxy.write(p_util_funcs)
+stub.write(s_util_funcs)
 
-function_sigs = []
-type_sigs = []
+# Generate specific utlity functions for each idl file 
+# these functions are specific to the idl types, think handle_person()
+# deals with more complex serialization and deserialiation determined by type
+p_idl_type_funcs = utils.generate_idl_type_func(idl_types, "PROXY")
+s_idl_type_funcs = utils.generate_idl_type_func(idl_types, "STUB")
 
-	
+# Write the generated code for the specific idl type functions to 
+# the respective file
+proxy.write(p_util_funcs)
+stub.write(s_util_funcs)
 
-#for  name, sig in decls["types"].iteritems():
-	# Check if type is built in or not
+# Generate the code for the functions specified in the IDL file
+# these functions are specific to the idl making
+# the remote calls on the client, and invoking the actual routines on the stub
+p_idl_funcs_funcs = utils.generate_idl_func_func(idl_funcs, "PROXY")
+s_idl_funcs_funcs = utils.generate_idl_func_func(idl_funcs, "STUB")
 
-	#if(sig["type_of_type"] == "builtin"):
-	#	continue
-	#else: 
-	#	args = sig["members"]
-	#	argstring = ', '.join([a["type"] + ' ' + a["name"] for a in args])
-	#   print the type 
-	#	print "%s %s(%s)" % (sig["type_of_type"], name, argstring)
-
-
+# Write the generated code for the specfic idl functions to
+# the respective file
+proxy.write(p_idl_funcs_funcs)
+stub.write(s_idl_funcs_funcs)
 
 
