@@ -39,6 +39,9 @@
 // TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
+using namespace std;
+#include <string>
+
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
@@ -48,6 +51,7 @@
 #include <cstring>
 #include <string>
 #include "c150debug.h"
+#include <regex>
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
@@ -71,7 +75,7 @@ void get_json();
 
 void __add(string message, int params) {
   //char doneBuffer[5] = "DONE";  // to write magic value DONE + null
-
+  cout << "I'm in add, here's my message: " << message << "\nand here are my params: " << params << "\n";
   //
   // Time to actually call the function 
   //
@@ -137,6 +141,8 @@ void get_json(char *buffer, unsigned int bufSize);
 // PARSING FUNCS
 string get_func_name(string json);
 int get_num_params(string json);
+string extract_string(string json, string key);
+int extract_int(string json, string key);
 
 // STRING TO CPP FUNCS
 int handle_int(string);
@@ -151,51 +157,53 @@ string handle_string(string);
 //
 
 void dispatchFunction() {
-  cout << "Dispatched again";
+  cout << "Dispatched again" << endl;
   char JsonSizeBuffer[30];
 
   // Get the Size of the Json 
   int json_size = get_json_size(JsonSizeBuffer, sizeof(JsonSizeBuffer));
 
   // Throw Error For Invalid JSON ("Shouldn't be possible?")
-  if(json_size == -1)
+  if(json_size == -1) {
     throw C150Exception("Finding Json Size Failed");
+  }
 
   // Load the Json into the Buffer
   char JsonBuffer[json_size];
   get_json(JsonBuffer, sizeof(JsonBuffer));
 
-  cout << "Loaded Json:" << JsonBuffer << endl;
+  cout << "Loaded Json: " << JsonBuffer << endl;
 
   //Save the Json as a string 
   string json_str(JsonBuffer, json_size);
-  //Get the function name from json
-  string func_name = get_func_name(json_str);
-  //Get the num of params from json 
-  int params = get_num_params(json_str);
+  map json = parse_object(json_str);
 
- 
+  int param_count = extract_int(json_str, "param_count")
 
   //
-  // We've read the function name, call the stub for the right one
+  // Read the function name, call the stub for the right one
   // The stub will invoke the function and send response.
   //
-  
+  string func_name = extract_string(json_str, "method")
+
+  // For this to work without full blown parsing the json, parse_param() needs
+  // to eat up the string until the start of the next parameter.
+  int x = parse_param(json_str);
 
   if (!RPCSTUBSOCKET->eof()) {
     if (func_name == "add")
-      __add(json_str, params);
+      __add(json_str, param_count);
     else   if (func_name == "subtract")
-      __subtract(json_str, params);
+      __subtract(json_str, param_count);
     else   if (func_name == "multiply")
-      __multiply(json_str, params);
+      __multiply(json_str, param_count);
     else   if (func_name == "divide")
-      __divide(json_str, params);
+      __divide(json_str, param_count);
     else
       __badFunction(func_name);
   }
 }
-                 
+
 //   Important: this routine must leave the sock open but at EOF
 //   when eof is read from client. 
 //   This function parses the size of the json message from the socket
@@ -273,6 +281,64 @@ void get_json(char *buffer, unsigned int bufSize)  {
   // If we didn't get a null, input message was poorly formatted
     else if(!readnull) 
     throw C150Exception("simplefunction.stub: method name not null terminated or too long");
+}
+
+// string extract_array(string json, string key) {
+
+// }
+
+// string extract_object(string json, string key) {
+
+// }
+
+float extract_float(string json, string key) {
+  // Warning: regex requires at least one digit preceding the decimal
+  regex pair_regex("\"(" + key + ")\":(-?[0-9]+[\\.][0-9]*)[,}\\]]"); // "(my_key)":(-?[0-9]+[\.][0-9]*)[,}\]]
+  smatch pair_matches;
+  
+  bool pair_exists = regex_search(json, pair_matches, pair_regex);
+  if (!pair_exists) { throw runtime_error("Search for float belonging to key '" + key + "' failed."); }
+  
+  return stof(pair_matches[2]);
+}
+
+int extract_int(string json, string key) {
+  regex pair_regex("\"(" + key + ")\":(-?[0-9]+)[,}\\]]"); // "(my_key)":(-?[0-9]+)[,}\]]
+  smatch pair_matches;
+  
+  bool pair_exists = regex_search(json, pair_matches, pair_regex);
+  if (!pair_exists) { throw runtime_error("Search for int belonging to key '" + key + "' failed."); }
+  
+  return stoi(pair_matches[2]);
+}
+
+bool extract_bool(string json, string key) {
+  regex pair_regex("\"(" + key + ")\":(true|false)[,}\\]]"); // "(my_key)":(true|false)[,}\]]
+  smatch pair_matches;
+  
+  bool pair_exists = regex_search(json, pair_matches, pair_regex);
+  if (!pair_exists) { throw runtime_error("Search for bool belonging to key '" + key + "' failed."); }
+  
+  return pair_matches[2] == "true";
+}
+
+// Extracts the first instance of the key in the string, regardless of nesting level.
+// If we care about nesting level, then we need to just parse the JSON fully before
+// we do any data extraction/etc. on it.
+string extract_string(string json, string key) {
+  regex pair_regex("\"(" + key + ")\":\"([^\\\"]+)\"[,}\\]]"); // "(my_key)":"([^\"]+)"[,}\]]
+  smatch pair_matches;
+  
+  bool pair_exists = regex_search(json, pair_matches, pair_regex);
+  if (!pair_exists) { throw runtime_error("Search for string belonging to key '" + key + "' failed."); }
+  
+  // cout << "Prefix: '" << pair_matches.prefix() << "'\n";
+  // cout << "full match: '" << pair_matches[0] << "'\n";
+  // cout << "key: '" << pair_matches[1] << "'\n";
+  // cout << "value: '" << pair_matches[2] << "'\n";
+  // cout << "Suffix: '" << pair_matches.suffix() << "\'\n";
+  
+  return pair_matches[2];
 }
 
 // Ugly Parses the Function Name from Method, Maybe Find 3rd Party Library?

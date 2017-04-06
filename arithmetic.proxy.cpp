@@ -59,9 +59,9 @@ string add_size_to_message(string message) {
 string jsonify_pair(string key, string value, string json_type) {
   stringstream pair;
   if (json_type == "string" || json_type == "char") {
-    pair << "\\\"" << key << "\\\":\\\"" << value << "\\\"";
+    pair << "\"" << key << "\":\"" << value << "\"";
   } else {
-    pair << "\\\"" << key << "\\\":" << value;
+    pair << "\"" << key << "\":" << value;
   }
   return pair.str();
 }
