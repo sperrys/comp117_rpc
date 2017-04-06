@@ -18,6 +18,7 @@ import os
 # Constants for formatting  
 CENTERED = 20
 OFFSET = 10
+INDENT = 4
 
 # Constants for templating
 COMMENT = "//"
@@ -49,6 +50,9 @@ P_CONSTANTS = ["string VALUE_KEY = \"value\"", "string TYPE_KEY = \"type\"",
 			   "string STRUCT_KEY = \"is_struct\"", "string ARRAY_KEY = \"is_array\""]
 
 S_CONSTANTS = []
+
+# Array of Basic Types Supported
+BASIC_TYPES = ["int", "bool", "string", "char", "float", "void"]
 
 
 # ---------------------------------------------------------------- #
@@ -160,7 +164,7 @@ def generate_file_head(filename, stub_type):
 	namesspace = gen_namespace(stub_type)
 	constants = gen_constants(stub_type)
 	
-	return comments + include + NEWLINE + namesspace + NEWLINE + constants
+	return comments + include + NEWLINE + namesspace + NEWLINE + constants + NEWLINE + NEWLINE
 
 
 # Function that checks the validity of the command line 
@@ -190,6 +194,103 @@ def CheckArgs(argv):
 		print(e)
 		print >> sys.stderr, "Usage: %s <idlfilename>" % sys.argv[0] 
 
+
+# function that prepends the word handle to a word
+# Returns: prepended word 
+def add_handle(name):
+	return "handle_"+ name
+
+# function that prepends my in front of name 
+# Returns: prepended word
+def add_my(name):
+	return "my_"+ name
+
+# function that generates the function declaration part of the handle functions
+# ie. string handle_int(int my_int) {
+# doesn't generate body of the function 
+def generate_hand_func_decl(type_name, stub_type):
+	decl = ""
+
+	if stub_type == "PROXY": 
+		decl = "string" + SPACE + add_handle(type_name) + "(" + type_name
+		decl += SPACE + add_my(type_name) + ")" + SPACE + "{" + NEWLINE
+
+	elif stub_type == "STUB":
+		return ""
+
+	return decl 
+
+# STILL NEED TO FINISH FOR STUB
+# function that generates the function body part of 
+def generate_hand_func_body(type_name, stub_type):
+	body = ""
+	if stub_type == "PROXY": 
+		body += SPACE * INDENT + "vector<string>param_pairs" + SEMICOLON + NEWLINE + NEWLINE
+		body += SPACE * INDENT + COMMENT + "value to string conversion" + NEWLINE
+		body += SPACE * INDENT + "string type = " + add_quotes(type_name) + SEMICOLON + NEWLINE
+		body += SPACE * INDENT + "stringstream value" + SEMICOLON + NEWLINE
+		body += SPACE * INDENT + "value << " + add_my(type_name) + NEWLINE + NEWLINE
+		body += SPACE * INDENT + COMMENT + "compose the inner description object" + NEWLINE
+
+		return body + NEWLINE + "}" + NEWLINE
+
+	elif stub_type == "STUB":
+		return ""
+
+
+# generated functions that aren't dependenet on idl
+# Returns: string of generated code for basic functions
+def generate_util_funcs(stub_type):
+	basic_handle_funcs = ""
+
+	for type_name in BASIC_TYPES:
+		basic_handle_funcs += generate_handle(type_name, stub_type)
+
+	return basic_handle_funcs
+
+# generates functions that handle basic types
+# 
+def generate_handle(type_name, stub_type):
+	func = ""
+
+	if stub_type == "STUB":
+		func += generate_hand_func_decl(type_name, stub_type)
+		func += generate_hand_func_body(type_name, stub_type)
+
+	elif stub_type == "PROXY":
+		func += generate_hand_func_decl(type_name, stub_type)
+		func += generate_hand_func_body(type_name, stub_type)
+
+	return func 
+		
+
+
+
+
+#
+#	 				TODO: FUNCS 
+# 
+
+
+
+
+
+# functions associated with idl types, dependent on idl 
+def generate_idl_type_func(idl_types, stub_type):
+	return ""
+
+
+# functions associated with idl funcs, dependent on idl 
+def generate_idl_func_func(idl_funcs, stub_type):
+	return ""
+
+
+# 
+#		WRITTEN FUNCS, BUT NOT CURRENTLY USED
+# 
+
+
+
 # Function that takes the json and an array 
 # parses the json and stores a string of the func sig
 # in the provided array
@@ -208,26 +309,6 @@ def StoreFuncSigStrings(json, function_array):
 		function_array.append(func_sig)
 
 	return function_array
-
-
-# functions associated with idl types, dependent on idl 
-def generate_idl_type_func(idl_types, stub_type):
-	return ""
-
-
-# functions associated with idl funcs, dependent on idl 
-def generate_idl_func_func(idl_funcs, stub_type):
-	return ""
-
-
-# generated functions that aren't dependenet on idl 
-def generate_util_funcs(stub_type):
-	return ""
-
-
-
-
-
 
 
 

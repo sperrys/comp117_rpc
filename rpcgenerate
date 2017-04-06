@@ -54,8 +54,8 @@ s_idl_type_funcs = utils.generate_idl_type_func(idl_types, "STUB")
 
 # Write the generated code for the specific idl type functions to 
 # the respective file
-proxy.write(p_util_funcs)
-stub.write(s_util_funcs)
+proxy.write(p_idl_type_funcs)
+stub.write(s_idl_type_funcs)
 
 # Generate the code for the functions specified in the IDL file
 # these functions are specific to the idl making
