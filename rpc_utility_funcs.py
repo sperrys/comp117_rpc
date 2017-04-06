@@ -221,7 +221,9 @@ def generate_hand_func_decl(type_name, stub_type):
 	return decl 
 
 # STILL NEED TO FINISH FOR STUB
-# function that generates the function body part of 
+# function that generates the function body for handle functions
+# might add a general create_func that takes an array of function lines
+# and adds apropriate indents and newlines
 def generate_hand_func_body(type_name, stub_type):
 	body = ""
 	if stub_type == "PROXY": 
@@ -240,6 +242,9 @@ def generate_hand_func_body(type_name, stub_type):
 
 # generated functions that aren't dependenet on idl
 # Returns: string of generated code for basic functions
+# 
+# Todo: Proxy: add functions like jsonifyies and add_size_to_message
+# 		Stub: add functions like get_json_size and get_json 
 def generate_util_funcs(stub_type):
 	basic_handle_funcs = ""
 
@@ -249,7 +254,6 @@ def generate_util_funcs(stub_type):
 	return basic_handle_funcs
 
 # generates functions that handle basic types
-# 
 def generate_handle(type_name, stub_type):
 	func = ""
 
