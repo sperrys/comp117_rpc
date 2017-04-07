@@ -231,6 +231,15 @@ void person_func(Person p) {
 
   cout << "The final message: " << message << "\n";
 
+  // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: person_func() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: person_func() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
   return;
 }
 

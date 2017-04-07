@@ -109,7 +109,7 @@ main(int argc, char *argv[]) {
      //     Call the functions and see if they return
      //
      try {
-       int result; 
+       int result = 0;
 
        //
        // Set up the socket so the proxies can find it
@@ -126,10 +126,10 @@ main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) sum
        //
-       printf("Calling sum([10,2,4])\n");
-       int nums[3] = { 10, 2, 4 };
-       result = sum(nums);                          // remote call (we hope!)
-       printf("Returned from sum([10,2,4]). Result=%d\n",result);
+       // printf("Calling sum([10,2,4])\n");
+       // int nums[3] = { 10, 2, 4 };
+       // result = sum(nums);                          // remote call (we hope!)
+       // printf("Returned from sum([10,2,4]). Result=%d\n",result);
 
        // 
        // Call (possibly remote) sum
@@ -137,7 +137,7 @@ main(int argc, char *argv[]) {
        printf("Calling person_func(jack)\n");
        struct Person jack = { "Jack", "Daniels", 59 };
        person_func(jack);                          // remote call (we hope!)
-       printf("Returned from person_func(jack). Result=%d\n",result);
+       printf("Returned from person_func(jack).");
 
        // 
        // Call (possibly remote) sum

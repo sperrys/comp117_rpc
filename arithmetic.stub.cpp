@@ -79,6 +79,7 @@ float handle_float(string json);
 string handle_string(string json);
 
 int *handle_int_3(string json);
+Person handle_person(string person_obj);
 
 // ======================================================================
 //                             STUBS
@@ -159,6 +160,32 @@ void __sum(string json, int param_count, string params) {
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
 
+void __person_func(string json, int param_count, string params) {
+  size_t person_param_size = extract_object_length(params);
+  size_t person_param_start = params.find('{');
+  size_t person_param_len = person_param_size;
+  
+  string person_param = params.substr(person_param_start, person_param_len);
+  cout << "x: " << person_param << endl;
+  Person person = handle_person(person_param);
+  cout << "person.firstname: " << person.firstname << endl;
+
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+}
+
 void __subtract(string json, int params) {
   //char doneBuffer[5] = "DONE";
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
@@ -205,6 +232,8 @@ void dispatchFunction() {
   if (!RPCSTUBSOCKET->eof()) {
     if (func_name == "add")
       __add(json_str, param_count, params);
+    else   if (func_name == "person_func")
+      __person_func(json_str, param_count, params);
     else   if (func_name == "sum")
       __sum(json_str, param_count, params);
     else   if (func_name == "subtract")
@@ -342,6 +371,7 @@ string extract_string(string json, string key) {
 }
 
 // extracts an array from an object correctly only if it is the last key
+// TODO: refind to take into account the prepended length
 string extract_array(string json, string key) {
   regex pair_regex("\"(" + key + ")\":[0-9]+\\[([0-9]+\\{.+\\})\\]");
   smatch pair_matches;
@@ -351,9 +381,20 @@ string extract_array(string json, string key) {
   return pair_matches[2]; 
 }
 
-int* handle_int_3(string int_3_object) {
+// extracts an array from an object correctly only if it is the last key
+// TODO: refind to take into account the prepended length
+string extract_object(string json, string key) {
+  regex pair_regex("\"(" + key + ")\":([0-9]+\\{.+\\})");
+  smatch pair_matches;
+
+  bool pair_exists = regex_search(json, pair_matches, pair_regex);
+  if (!pair_exists) { throw runtime_error("Search for object belonging to key '" + key + "' failed."); }
+  return pair_matches[2]; 
+}
+
+int* handle_int_3(string int_3_obj) {
   int *my_int = (int *) malloc(sizeof(int) * 3);
-  string objs = extract_array(int_3_object, "value");
+  string objs = extract_array(int_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
     size_t i_param_size = extract_object_length(objs);
@@ -373,6 +414,20 @@ int* handle_int_3(string int_3_object) {
   }
 
   return my_int;
+}
+
+Person handle_person(string person_obj) {
+  Person my_person = *(Person *) malloc(sizeof(Person));
+  string value_obj = extract_object(person_obj, "value");
+
+  cout << "person value_obj: " << value_obj << endl;
+
+  // TODO extract based on length, not just regex
+  my_person.firstname = handle_string(extract_object(value_obj, "firstname"));
+  my_person.lastname = handle_string(extract_object(value_obj, "lastname"));
+  my_person.age = handle_int(extract_object(value_obj, "age"));
+  
+  return my_person;
 }
 
 int handle_int(string int_object) {
