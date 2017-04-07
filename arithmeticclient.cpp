@@ -23,7 +23,7 @@
 //        an ordinary local application is the call to
 //        rpcproxyinitialize. If you commented that out, you could
 //        link this with the local version of simplefunction.o
-//        (which has the remotable function implementations)            
+//        (which has the remotable function implementations)			      
 //
 //        COMMAND LINE
 //
@@ -119,9 +119,9 @@ main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) add
        //
-       printf("Calling add(10,2)\n");
-       result = add(300,200);                          // remote call (we hope!)
-       printf("Returned from add(10,2). Result=%d\n",result);
+       // printf("Calling add(10,2)\n");
+       // result = add(10,2);                          // remote call (we hope!)
+       // printf("Returned from add(10,2). Result=%d\n",result);
 
        // 
        // Call (possibly remote) sum
@@ -180,7 +180,7 @@ main(int argc, char *argv[]) {
      catch (C150Exception e) {
        // Write to debug log
        c150debug->printf(C150ALWAYSLOG,"Caught C150Exception: %s\n",
-       e.formattedExplanation().c_str());
+			 e.formattedExplanation().c_str());
        // In case we're logging to a file, write to the console too
        cerr << argv[0] << ": caught C150NetworkException: " << e.formattedExplanation() << endl;
      }
@@ -265,5 +265,5 @@ void setUpDebugLogging(const char *logname, int argc, char *argv[]) {
      // for the system to run quietly without producing debug output.
      //
      c150debug->enableLogging(C150ALLDEBUG | C150RPCDEBUG | C150APPLICATION | C150NETWORKTRAFFIC | 
-            C150NETWORKDELIVERY); 
+			      C150NETWORKDELIVERY); 
 }

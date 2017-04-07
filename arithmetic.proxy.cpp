@@ -48,14 +48,6 @@ const string TYPE_KEY = "type";
 const string STRUCT_KEY = "is_struct";
 const string ARRAY_KEY = "is_array";
 
-
-string add_size_to_message(string message) {
-  stringstream m_size; 
-  int length = message.length();
-  m_size << "size:" << length << "," << message;
-  return m_size.str();
-}
-
 string jsonify_pair(string key, string value, string json_type) {
   stringstream pair;
   if (json_type == "string" || json_type == "char") {
@@ -74,7 +66,7 @@ string jsonify_object(vector<string> pairs) {
     if (i != pairs.size() - 1) obj << ",";
   }
   obj << "}";
-  return obj.str();
+  return to_string(obj.str().length()) + obj.str();
 }
 
 string jsonify_array(vector<string> objects) {
@@ -85,7 +77,7 @@ string jsonify_array(vector<string> objects) {
     if (i != objects.size() - 1) arr << ",";
   }
   arr << "]";
-  return arr.str();
+  return to_string(arr.str().length()) + arr.str();
 }
 
 // returns an param description JSON object
@@ -274,6 +266,8 @@ int sum(int x[3]) {
   //    params: [
   //      {
   //        type: "int[3]"
+  //        is_struct: false,
+  //        is_array: true,
   //        value: [
   //          1: {
   //            type: "int",
@@ -331,6 +325,15 @@ int sum(int x[3]) {
 
   cout << "The final message: " << message << "\n";
 
+  // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
   return 0;
 }
 
@@ -372,12 +375,7 @@ int add(int x, int y) {
   // Finalize the message
   message = jsonify_object(pairs);
 
-  // Add the length of the JSON to the message 
-  message = add_size_to_message(message);
-
-
   cout << "The final message: " << message.c_str() << "\n";
-
 
   // Send the remote call
   c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() invoked");
