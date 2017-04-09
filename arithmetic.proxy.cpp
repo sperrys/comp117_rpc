@@ -188,6 +188,27 @@ string handle_Person(Person my_Person) {
   return jsonify_object(param_pairs);
 }
 
+string handle_people_array(Person p[3]) {
+  vector<string> param_pairs;
+
+  // value to string conversion
+  string type = "p[3]";
+  vector<string> elements;
+  for (int i = 0; i < 3; i++) {
+    elements.push_back(handle_Person(p[i]));
+  }
+  stringstream value;
+  value << jsonify_array(elements);
+
+  // compose the inner description object
+  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "true", "bool"));
+  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "array"));
+
+  return jsonify_object(param_pairs);
+}
+
 string handle_ThreePeople(ThreePeople my_ThreePeople) {
   vector<string> param_pairs;
 
@@ -264,6 +285,49 @@ void people_func(ThreePeople p) {
   message = jsonify_object(pairs);
 
   cout << "The final message: " << message << "\n";
+
+   // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_func() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_func() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
+  return;
+}
+
+void people_array(Person p[]) {
+  // Compose the remote call
+  string message;
+  vector<string> pairs;
+
+  // Remote call metadata
+  pairs.push_back(jsonify_pair("method", "people_array", "string"));
+  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+
+  // Remote call params
+  vector<string> param_objects;
+  param_objects.push_back(handle_people_array(p));
+  cout << "object for " << "p" << ": " << handle_people_array(p) << "\n";
+
+  string params = jsonify_array(param_objects);
+  pairs.push_back(jsonify_pair("params", params, "array"));
+
+  // Finalize the message
+  message = jsonify_object(pairs);
+
+  cout << "The final message: " << message << "\n";
+
+   // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_array() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_array() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
 
   return;
 }

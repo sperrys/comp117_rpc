@@ -79,7 +79,10 @@ float handle_float(string json);
 string handle_string(string json);
 
 int *handle_int_3(string json);
+Person* handle_people_3(string json);
+
 Person handle_person(string person_obj);
+ThreePeople handle_ThreePeople(string ThreePeople_obj);
 
 // ======================================================================
 //                             STUBS
@@ -98,6 +101,7 @@ Person handle_person(string person_obj);
 
 
 void __add(string json, int param_count, string params) {
+
   size_t x_param_size = extract_object_length(params);
   size_t x_param_start = params.find('{');
   size_t x_param_len = x_param_size;
@@ -161,14 +165,15 @@ void __sum(string json, int param_count, string params) {
 }
 
 void __person_func(string json, int param_count, string params) {
+
   size_t person_param_size = extract_object_length(params);
   size_t person_param_start = params.find('{');
   size_t person_param_len = person_param_size;
   
   string person_param = params.substr(person_param_start, person_param_len);
   cout << "x: " << person_param << endl;
-  Person person = handle_person(person_param);
-  cout << "person.firstname: " << person.firstname << endl;
+  Person my_person = handle_person(person_param);
+  cout << "person.firstname: " << my_person.firstname << endl;
 
   //
   // Time to actually call the function 
@@ -185,6 +190,64 @@ void __person_func(string json, int param_count, string params) {
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
+
+void __people_func(string json, int param_count, string params) {
+
+  size_t ThreePeople_param_size = extract_object_length(params);
+  size_t ThreePeople_param_start = params.find('{');
+  size_t ThreePeople_param_len = ThreePeople_param_size;
+  
+  string ThreePeople_param = params.substr(ThreePeople_param_start, ThreePeople_param_len);
+  cout << "x: " << ThreePeople_param << endl;
+  ThreePeople people = handle_ThreePeople(ThreePeople_param);
+  
+
+  cout << "P1 firstname is " <<  people.p1.firstname << endl;
+  cout << "P2 firstname is " <<  people.p2.firstname << endl;
+  cout << "P3 firstname is " <<  people.p3.firstname << endl;
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1
+}
+
+void __people_array(string json, int param_count, string params) {
+
+  size_t people_array_param_size = extract_object_length(params);
+  size_t people_array_param_start = params.find('{');
+  size_t people_array_param_len = people_array_param_size;
+  
+  string people_array_param = params.substr(people_array_param_start, people_array_param_len);
+  cout << "x: " << people_array_param << endl;
+  Person * people = handle_people_3(people_array_param);
+  cout << people[1].firstname << endl;
+  
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1
+}
+
 
 void __subtract(string json, int params) {
   //char doneBuffer[5] = "DONE";
@@ -234,6 +297,8 @@ void dispatchFunction() {
       __add(json_str, param_count, params);
     else   if (func_name == "person_func")
       __person_func(json_str, param_count, params);
+    else   if (func_name == "people_func")
+      __people_func(json_str, param_count, params);
     else   if (func_name == "sum")
       __sum(json_str, param_count, params);
     else   if (func_name == "subtract")
@@ -242,6 +307,8 @@ void dispatchFunction() {
       __multiply(json_str, param_count);
     else   if (func_name == "divide")
       __divide(json_str, param_count);
+    else   if  (func_name == "people_array")
+      __people_array(json_str, param_count, params);
     else
       __badFunction(func_name);
   }
@@ -416,18 +483,56 @@ int* handle_int_3(string int_3_obj) {
   return my_int;
 }
 
+
+Person* handle_people_3(string people_3_obj) {
+  Person *my_people = (Person *) malloc(sizeof(Person) * 3);
+  string objs = extract_array(people_3_obj, "value");
+
+  for (int i = 0; i < 3; i++) {
+    size_t i_param_size = extract_object_length(objs);
+    size_t i_param_start = objs.find('{');
+    size_t i_param_len = i_param_size;
+    
+    string i_param = objs.substr(i_param_start, i_param_len);
+    // cout << "i: " << i_param << endl;
+    Person x = handle_person(i_param);
+    // cout << "i value: " << x << endl;
+
+    if (i < 2) {// not the last iteration
+      objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
+    }
+    cerr << "Made it here" << endl;
+    my_people[i] = x;
+  }
+
+  return my_people;
+}
+
 Person handle_person(string person_obj) {
-  Person my_person = *(Person *) malloc(sizeof(Person));
+
+  // Had to mess around to properly return struct 
+  //Person my_person = *(Person *)malloc(sizeof(Person));
+  Person* my_person = new struct Person;
   string value_obj = extract_object(person_obj, "value");
 
-  cout << "person value_obj: " << value_obj << endl;
-
   // TODO extract based on length, not just regex
-  my_person.firstname = handle_string(extract_object(value_obj, "firstname"));
-  my_person.lastname = handle_string(extract_object(value_obj, "lastname"));
-  my_person.age = handle_int(extract_object(value_obj, "age"));
-  
-  return my_person;
+  my_person->firstname = handle_string(extract_string(extract_object(value_obj, "firstname"), "value"));
+  my_person->lastname = handle_string(extract_string(extract_object(value_obj, "lastname"), "value"));
+  my_person->age = handle_int(extract_object(value_obj, "age"));
+ 
+  return *(my_person);
+}
+
+ThreePeople handle_ThreePeople(string ThreePeople_obj) {
+
+  ThreePeople* people = new struct ThreePeople;
+  string value_obj = extract_object(ThreePeople_obj, "value");
+
+  people->p1 = handle_person(extract_object(value_obj, "p1"));
+  people->p2 = handle_person(extract_object(value_obj, "p2"));
+  people->p3 = handle_person(extract_object(value_obj, "p3"));
+
+  return *(people);
 }
 
 int handle_int(string int_object) {
