@@ -229,7 +229,7 @@ void __people_array(string json, int param_count, string params) {
   
   string people_array_param = params.substr(people_array_param_start, people_array_param_len);
   cout << "x: " << people_array_param << endl;
-  Person * people = handle_people_3(people_array_param);
+  Person *people = handle_people_3(people_array_param);
   cout << people[1].firstname << endl;
   
   //
@@ -437,26 +437,50 @@ string extract_string(string json, string key) {
   return pair_matches[2];
 }
 
-// extracts an array from an object correctly only if it is the last key
-// TODO: refind to take into account the prepended length
+// extracts a nested array from an json object (without the outer brackets '[]')
 string extract_array(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":[0-9]+\\[([0-9]+\\{.+\\})\\]");
+  regex pair_regex("\"(" + key + ")\":([0-9]+\\[[0-9]+\\{.+\\}\\])");
   smatch pair_matches;
 
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
   if (!pair_exists) { throw runtime_error("Search for array belonging to key '" + key + "' failed."); }
-  return pair_matches[2]; 
+
+  // use to the array length to truncate the string selection at the end of the array
+  string arr = pair_matches[2];
+  regex arr_regex("([0-9]+)\\[([0-9]+\\{.+\\})\\]");
+  smatch arr_matches;
+
+  bool arr_exists = regex_search(arr, arr_matches, arr_regex);
+  if (!arr_exists) { throw runtime_error("Array belonging to key '" + key + "' not prepended with length."); }
+
+  size_t arr_size = stoi(arr_matches[1]);
+  size_t arr_start = arr.find('[');
+
+  // select array, but remove outer brackets
+  return arr.substr(arr_start + 1, arr_size - 1);
 }
 
-// extracts an array from an object correctly only if it is the last key
-// TODO: refind to take into account the prepended length
+// extracts a nested object from an json object
 string extract_object(string json, string key) {
+  // extract the object and everything following it in the json string
   regex pair_regex("\"(" + key + ")\":([0-9]+\\{.+\\})");
   smatch pair_matches;
 
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
   if (!pair_exists) { throw runtime_error("Search for object belonging to key '" + key + "' failed."); }
-  return pair_matches[2]; 
+
+  // use to the obj length to truncate the string selection at the end of the obj
+  string obj = pair_matches[2];
+  regex obj_regex("([0-9]+)(\\{.+\\})");
+  smatch obj_matches;
+
+  bool obj_exists = regex_search(obj, obj_matches, obj_regex);
+  if (!obj_exists) { throw runtime_error("Object belonging to key '" + key + "' not prepended with length."); }
+
+  size_t obj_size = stoi(obj_matches[1]);
+  size_t obj_start = obj.find('{');
+  
+  return obj.substr(obj_start, obj_size);
 }
 
 int* handle_int_3(string int_3_obj) {
@@ -506,11 +530,7 @@ Person* handle_people_3(string people_3_obj) {
       objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
     }
 
-    cout << "made it here" << endl; 
     my_people[i] = x;
-    cerr << "segeed here" << endl;
-    cerr << my_people[i].firstname << endl;
-    
   }
 
   return my_people;
@@ -535,6 +555,8 @@ ThreePeople handle_ThreePeople(string ThreePeople_obj) {
 
   ThreePeople* people = new struct ThreePeople;
   string value_obj = extract_object(ThreePeople_obj, "value");
+
+  cout << "Extracted: " << extract_object(value_obj, "p1") << endl;
 
   people->p1 = handle_person(extract_object(value_obj, "p1"));
   people->p2 = handle_person(extract_object(value_obj, "p2"));

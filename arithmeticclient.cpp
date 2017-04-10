@@ -145,25 +145,24 @@ int main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) sum
        //
-       //printf("Calling people_func(three)\n");
-       //struct Person p_one = { "Jack", "Daniels", 59 };
-       //struct Person p_two = { "Henry", "Ford", 32 };
-       //struct Person p_three = { "Ben", "Wallibur", 19 };
-
-       //struct ThreePeople three = { p_one, p_two, p_three };
-       //people_func(three);        // remote call (we hope!)
-       //printf("Returned from people_func(three). Result=%s\n", person_result.firstname.c_str());
-
-       // Doesn't work currently
-       printf("Calling people_array(people_arr)\n");
-
+       // printf("Calling people_func(three)\n");
        struct Person p_one = { "Jack", "Daniels", 59 };
        struct Person p_two = { "Henry", "Ford", 32 };
        struct Person p_three = { "Ben", "Wallibur", 19 };
 
-       Person people_arr[3] = { p_one, p_two, p_three };
+       struct ThreePeople three = { p_one, p_two, p_three };
+       people_func(three);        // remote call (we hope!)
+       // printf("Returned from people_func(three). Result=%s\n", person_result.firstname.c_str());
 
-       people_array(people_arr);  
+       // printf("Calling people_array(people_arr)\n");
+
+       // struct Person p_one = { "Jack", "Daniels", 59 };
+       // struct Person p_two = { "Henry", "Ford", 32 };
+       // struct Person p_three = { "Ben", "Wallibur", 19 };
+
+       // Person people_arr[3] = { p_one, p_two, p_three };
+
+       // people_array(people_arr);  
 
 
        // 
