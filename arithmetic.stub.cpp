@@ -68,10 +68,10 @@ size_t read_message_size();
 string read_message(size_t message_size);
 
 // PARSING FUNCS
-size_t extract_object_length(string json);
 string extract_string(string json, string key);
 int extract_int(string json, string key);
 string extract_array(string json, string key);
+string consume_object(string &json);
 
 // STRING TO CPP FUNCS
 int handle_int(string json);
@@ -101,27 +101,8 @@ ThreePeople handle_ThreePeople(string ThreePeople_obj);
 
 
 void __add(string json, int param_count, string params) {
-
-  size_t x_param_size = extract_object_length(params);
-  size_t x_param_start = params.find('{');
-  size_t x_param_len = x_param_size;
-  
-  string x_param = params.substr(x_param_start, x_param_len);
-  cout << "x: " << x_param << endl;
-  int x = handle_int(x_param);
-  cout << "x value: " << x << endl;
-
-  params = params.substr(x_param_start + x_param_len + strlen(","), params.npos);
-
-  size_t y_param_size = extract_object_length(params);
-  size_t y_param_start = params.find('{');
-  size_t y_param_len = y_param_size;
-  
-  string y_param = params.substr(y_param_start, y_param_len);
-  cout << "y: " << y_param << endl;
-  int y = handle_int(y_param);
-  cout << "y value: " << y << endl;
-
+  int x = handle_int(consume_object(params));
+  int y = handle_int(consume_object(params));
   //
   // Time to actually call the function 
   //
@@ -139,14 +120,7 @@ void __add(string json, int param_count, string params) {
 }
 
 void __sum(string json, int param_count, string params) {
-  size_t x_param_size = extract_object_length(params);
-  size_t x_param_start = params.find('{');
-  size_t x_param_len = x_param_size;
-  
-  string x_param = params.substr(x_param_start, x_param_len);
-  cout << "x: " << x_param << endl;
-  int *x = handle_int_3(x_param);
-  cout << "x[0]: " << x[0] << endl;
+  int *x = handle_int_3(consume_object(params));
 
   //
   // Time to actually call the function 
@@ -165,15 +139,7 @@ void __sum(string json, int param_count, string params) {
 }
 
 void __person_func(string json, int param_count, string params) {
-
-  size_t person_param_size = extract_object_length(params);
-  size_t person_param_start = params.find('{');
-  size_t person_param_len = person_param_size;
-  
-  string person_param = params.substr(person_param_start, person_param_len);
-  cout << "x: " << person_param << endl;
-  Person my_person = handle_person(person_param);
-  cout << "person.firstname: " << my_person.firstname << endl;
+  Person my_person = handle_person(consume_object(params));
 
   //
   // Time to actually call the function 
@@ -192,15 +158,7 @@ void __person_func(string json, int param_count, string params) {
 }
 
 void __people_func(string json, int param_count, string params) {
-
-  size_t ThreePeople_param_size = extract_object_length(params);
-  size_t ThreePeople_param_start = params.find('{');
-  size_t ThreePeople_param_len = ThreePeople_param_size;
-  
-  string ThreePeople_param = params.substr(ThreePeople_param_start, ThreePeople_param_len);
-  cout << "x: " << ThreePeople_param << endl;
-  ThreePeople people = handle_ThreePeople(ThreePeople_param);
-  
+  ThreePeople people = handle_ThreePeople(consume_object(params));
 
   cout << "P1 firstname is " <<  people.p1.firstname << endl;
   cout << "P2 firstname is " <<  people.p2.firstname << endl;
@@ -222,15 +180,7 @@ void __people_func(string json, int param_count, string params) {
 }
 
 void __people_array(string json, int param_count, string params) {
-
-  size_t people_array_param_size = extract_object_length(params);
-  size_t people_array_param_start = params.find('{');
-  size_t people_array_param_len = people_array_param_size;
-  
-  string people_array_param = params.substr(people_array_param_start, people_array_param_len);
-  cout << "x: " << people_array_param << endl;
-  Person *people = handle_people_3(people_array_param);
-  cout << people[1].firstname << endl;
+  Person *people = handle_people_3(consume_object(params));
   
   //
   // Time to actually call the function 
@@ -380,12 +330,6 @@ string read_message(size_t message_size) {
   return message;
 }
 
-// each object is preceeded with a character length
-// e.g. "34{ ... }"
-size_t extract_object_length(string json) {
-  size_t obj_start = json.find('{');  // skip over sizing info
-  return stoi(json.substr(0, obj_start));
-}
 
 float extract_float(string json, string key) {
   // Warning: regex requires at least one digit preceding the decimal
@@ -418,21 +362,12 @@ bool extract_bool(string json, string key) {
   return pair_matches[2] == "true";
 }
 
-// Extracts the first instance of the key in the string, regardless of nesting level.
-// If we care about nesting level, then we need to just parse the JSON fully before
-// we do any data extraction/etc. on it.
 string extract_string(string json, string key) {
   regex pair_regex("\"(" + key + ")\":\"([^\\\"]+)\"[,}\\]]"); // "(my_key)":"([^\"]+)"[,}\]]
   smatch pair_matches;
   
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
   if (!pair_exists) { throw runtime_error("Search for string belonging to key '" + key + "' failed."); }
-  
-  // cout << "Prefix: '" << pair_matches.prefix() << "'\n";
-  // cout << "full match: '" << pair_matches[0] << "'\n";
-  // cout << "key: '" << pair_matches[1] << "'\n";
-  // cout << "value: '" << pair_matches[2] << "'\n";
-  // cout << "Suffix: '" << pair_matches.suffix() << "\'\n";
   
   return pair_matches[2];
 }
@@ -457,7 +392,7 @@ string extract_array(string json, string key) {
   size_t arr_start = arr.find('[');
 
   // select array, but remove outer brackets
-  return arr.substr(arr_start + 1, arr_size - 1);
+  return arr.substr(arr_start + 1, arr_size - 2);
 }
 
 // extracts a nested object from an json object
@@ -483,25 +418,23 @@ string extract_object(string json, string key) {
   return obj.substr(obj_start, obj_size);
 }
 
+// consumes the next object in an array (NOTE: pass string by reference)
+string consume_object(string &json) {
+  size_t obj_start = json.find('{');
+
+  // check for empty array
+  if (obj_start == json.npos) { return ""; }
+
+  size_t obj_len = stoi(json.substr(0, obj_start));
+  return json.substr(obj_start, obj_len);
+}
+
 int* handle_int_3(string int_3_obj) {
-  int *my_int = (int *) malloc(sizeof(int) * 3);
-  string objs = extract_array(int_3_obj, "value");
+  int *my_int = new int[3];
+  string ints = extract_array(int_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
-    size_t i_param_size = extract_object_length(objs);
-    size_t i_param_start = objs.find('{');
-    size_t i_param_len = i_param_size;
-    
-    string i_param = objs.substr(i_param_start, i_param_len);
-    // cout << "i: " << i_param << endl;
-    int x = handle_int(i_param);
-    // cout << "i value: " << x << endl;
-
-    if (i < 2) {// not the last iteration
-      objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
-    }
-
-    my_int[i] = x;
+    my_int[i] = handle_int(consume_object(ints));
   }
 
   return my_int;
@@ -509,41 +442,20 @@ int* handle_int_3(string int_3_obj) {
 
 
 Person* handle_people_3(string people_3_obj) {
-
-  Person *my_people;
-  my_people = new Person[3];
-
-  string objs = extract_array(people_3_obj, "value");
+  Person *my_people = new Person[3];
+  string people = extract_array(people_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
-    size_t i_param_size = extract_object_length(objs);
-    size_t i_param_start = objs.find('{');
-    size_t i_param_len = i_param_size;
-    
-    string i_param = objs.substr(i_param_start, i_param_len);
-    // cout << "i: " << i_param << endl;
-    Person x = handle_person(i_param);
-    cout << x.firstname << endl; 
-    // cout << "i value: " << x << endl;
-
-    if (i < 2) {// not the last iteration
-      objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
-    }
-
-    my_people[i] = x;
+    my_people[i] = handle_person(consume_object(people));
   }
 
   return my_people;
 }
 
 Person handle_person(string person_obj) {
-
-  // Had to mess around to properly return struct 
-  //Person my_person = *(Person *)malloc(sizeof(Person));
-  Person* my_person = new struct Person;
+  Person *my_person = new struct Person;
   string value_obj = extract_object(person_obj, "value");
 
-  // TODO extract based on length, not just regex
   my_person->firstname = handle_string(extract_string(extract_object(value_obj, "firstname"), "value"));
   my_person->lastname = handle_string(extract_string(extract_object(value_obj, "lastname"), "value"));
   my_person->age = handle_int(extract_object(value_obj, "age"));
@@ -552,17 +464,14 @@ Person handle_person(string person_obj) {
 }
 
 ThreePeople handle_ThreePeople(string ThreePeople_obj) {
-
   ThreePeople* people = new struct ThreePeople;
   string value_obj = extract_object(ThreePeople_obj, "value");
-
-  cout << "Extracted: " << extract_object(value_obj, "p1") << endl;
 
   people->p1 = handle_person(extract_object(value_obj, "p1"));
   people->p2 = handle_person(extract_object(value_obj, "p2"));
   people->p3 = handle_person(extract_object(value_obj, "p3"));
 
-  return *(people);
+  return *people;
 }
 
 int handle_int(string int_object) {
