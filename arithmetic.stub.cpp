@@ -485,7 +485,10 @@ int* handle_int_3(string int_3_obj) {
 
 
 Person* handle_people_3(string people_3_obj) {
-  Person *my_people = (Person *) malloc(sizeof(Person) * 3);
+
+  Person *my_people;
+  my_people = new Person[3];
+
   string objs = extract_array(people_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
@@ -496,13 +499,18 @@ Person* handle_people_3(string people_3_obj) {
     string i_param = objs.substr(i_param_start, i_param_len);
     // cout << "i: " << i_param << endl;
     Person x = handle_person(i_param);
+    cout << x.firstname << endl; 
     // cout << "i value: " << x << endl;
 
     if (i < 2) {// not the last iteration
       objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
     }
-    cerr << "Made it here" << endl;
+
+    cout << "made it here" << endl; 
     my_people[i] = x;
+    cerr << "segeed here" << endl;
+    cerr << my_people[i].firstname << endl;
+    
   }
 
   return my_people;
