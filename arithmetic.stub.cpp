@@ -46,16 +46,14 @@ using namespace std;
 #include "lotsofstuff.idl"
 
 #include "rpcstubhelper.h"
+#include "utility.h"
 
 #include <cstdio>
 #include <cstring>
 #include <string>
 #include "c150debug.h"
-#include <regex>
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
-
-
 
 // ======================================================================
 //
@@ -63,26 +61,14 @@ using namespace C150NETWORK;  // for all the comp150 utilities
 //
 // ======================================================================
 
-// JSON FUNCS
-size_t read_message_size();
-string read_message(size_t message_size);
-
-// PARSING FUNCS
-size_t extract_object_length(string json);
-string extract_string(string json, string key);
-int extract_int(string json, string key);
-string extract_array(string json, string key);
-
 // STRING TO CPP FUNCS
-int handle_int(string json);
-float handle_float(string json);
-string handle_string(string json);
-
-int *handle_int_3(string json);
-Person* handle_people_3(string json);
-
 Person handle_person(string person_obj);
+Person* handle_people_3(string json);
 ThreePeople handle_ThreePeople(string ThreePeople_obj);
+float handle_float(string json);
+int *handle_int_3(string json);
+int handle_int(string json);
+string handle_string(string json);
 
 // ======================================================================
 //                             STUBS
@@ -97,31 +83,10 @@ ThreePeople handle_ThreePeople(string ThreePeople_obj);
 //    code above).
 //
 // ======================================================================
-  
-
 
 void __add(string json, int param_count, string params) {
-
-  size_t x_param_size = extract_object_length(params);
-  size_t x_param_start = params.find('{');
-  size_t x_param_len = x_param_size;
-  
-  string x_param = params.substr(x_param_start, x_param_len);
-  cout << "x: " << x_param << endl;
-  int x = handle_int(x_param);
-  cout << "x value: " << x << endl;
-
-  params = params.substr(x_param_start + x_param_len + strlen(","), params.npos);
-
-  size_t y_param_size = extract_object_length(params);
-  size_t y_param_start = params.find('{');
-  size_t y_param_len = y_param_size;
-  
-  string y_param = params.substr(y_param_start, y_param_len);
-  cout << "y: " << y_param << endl;
-  int y = handle_int(y_param);
-  cout << "y value: " << y << endl;
-
+  int x = handle_int(consume_object(params));
+  int y = handle_int(consume_object(params));
   //
   // Time to actually call the function 
   //
@@ -139,15 +104,8 @@ void __add(string json, int param_count, string params) {
 }
 
 void __sum(string json, int param_count, string params) {
-  size_t x_param_size = extract_object_length(params);
-  size_t x_param_start = params.find('{');
-  size_t x_param_len = x_param_size;
-  
-  string x_param = params.substr(x_param_start, x_param_len);
-  cout << "x: " << x_param << endl;
-  int *x = handle_int_3(x_param);
-  cout << "x[0]: " << x[0] << endl;
-
+  int *x = handle_int_3(consume_object(params));
+  cout << *x << endl;
   //
   // Time to actually call the function 
   //
@@ -165,15 +123,7 @@ void __sum(string json, int param_count, string params) {
 }
 
 void __person_func(string json, int param_count, string params) {
-
-  size_t person_param_size = extract_object_length(params);
-  size_t person_param_start = params.find('{');
-  size_t person_param_len = person_param_size;
-  
-  string person_param = params.substr(person_param_start, person_param_len);
-  cout << "x: " << person_param << endl;
-  Person my_person = handle_person(person_param);
-  cout << "person.firstname: " << my_person.firstname << endl;
+  Person my_person = handle_person(consume_object(params));
 
   //
   // Time to actually call the function 
@@ -192,19 +142,11 @@ void __person_func(string json, int param_count, string params) {
 }
 
 void __people_func(string json, int param_count, string params) {
+  ThreePeople people = handle_ThreePeople(consume_object(params));
 
-  size_t ThreePeople_param_size = extract_object_length(params);
-  size_t ThreePeople_param_start = params.find('{');
-  size_t ThreePeople_param_len = ThreePeople_param_size;
-  
-  string ThreePeople_param = params.substr(ThreePeople_param_start, ThreePeople_param_len);
-  cout << "x: " << ThreePeople_param << endl;
-  ThreePeople people = handle_ThreePeople(ThreePeople_param);
-  
-
-  cout << "P1 firstname is " <<  people.p1.firstname << endl;
-  cout << "P2 firstname is " <<  people.p2.firstname << endl;
-  cout << "P3 firstname is " <<  people.p3.firstname << endl;
+  cout << people.p1.firstname << "'s favorite numbers: " <<  people.p1.favorite_numbers[0] << ", " << people.p1.favorite_numbers[1] << ", " << people.p1.favorite_numbers[2] << endl;
+  cout << people.p2.firstname << "'s favorite numbers: " <<  people.p2.favorite_numbers[0] << ", " << people.p2.favorite_numbers[1] << ", " << people.p2.favorite_numbers[2] << endl;
+  cout << people.p3.firstname << "'s favorite numbers: " <<  people.p3.favorite_numbers[0] << ", " << people.p3.favorite_numbers[1] << ", " << people.p3.favorite_numbers[2] << endl;
   //
   // Time to actually call the function 
   //
@@ -222,16 +164,9 @@ void __people_func(string json, int param_count, string params) {
 }
 
 void __people_array(string json, int param_count, string params) {
+  Person *people = handle_people_3(consume_object(params));
+  cout << people[0].firstname << endl;
 
-  size_t people_array_param_size = extract_object_length(params);
-  size_t people_array_param_start = params.find('{');
-  size_t people_array_param_len = people_array_param_size;
-  
-  string people_array_param = params.substr(people_array_param_start, people_array_param_len);
-  cout << "x: " << people_array_param << endl;
-  Person * people = handle_people_3(people_array_param);
-  cout << people[1].firstname << endl;
-  
   //
   // Time to actually call the function 
   //
@@ -281,16 +216,11 @@ void __badFunction(string func_name) {
 // Called when we're ready to read a new invocation request from the stream
 void dispatchFunction() {
   // Read the JSON message in
-  string json_str = read_message(read_message_size());
-
-  cout << "JSON: " << json_str << endl;
+  string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));
 
   string func_name = extract_string(json_str, "method");
-  // cout << "func_name: " << func_name << endl;
   int param_count = extract_int(json_str, "param_count");
-  // cout << "param_count: " << param_count << endl;
   string params = extract_array(json_str, "params");
-  // cout << "params: " << params << endl;
 
   if (!RPCSTUBSOCKET->eof()) {
     if (func_name == "add")
@@ -314,170 +244,12 @@ void dispatchFunction() {
   }
 }
 
-// Important: this routine must leave the sock open but at EOF
-// when eof is read from client. 
-// This function parses the size of the json message from the socket
-size_t read_message_size() {
-  char buffer[30];
-  char *buff_ptr = buffer;  // next char to read
-  ssize_t readlen;          // amount of data read from socket
-
-  for (unsigned int i = 0; i < sizeof(buffer); i++) {
-    readlen = RPCSTUBSOCKET->read(buff_ptr, 1);  // read a byte
-
-    if (*buff_ptr == '{') { return stoi(string(buffer)); }
-    buff_ptr++;
-    
-    // Error Handle 
-    if (readlen == 0) {
-    c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
-      if (RPCSTUBSOCKET-> eof()) {
-        c150debug->printf(C150RPCDEBUG,"simplefunction.stub: EOF signaled on input");
-      } else {
-      throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
-      }
-    }
-  }
-
-  // catchall exception
-  throw C150Exception("Finding JSON size failed.");
-} 
-
-// This function puts the JSON string in the buffer
-string read_message(size_t message_size) {
-  char buffer[message_size];
-  char *buff_ptr = buffer;  // next char to read
-  ssize_t readlen;          // amount of data read from socket
-  bool read_null;
-
-  for (unsigned int i = 0; i < sizeof(buffer); i++) {
-    readlen = RPCSTUBSOCKET->read(buff_ptr, 1);  // read a byte
-
-    if (readlen == 0) {
-      break;
-    } else if (*buff_ptr++ == '\0') {
-      read_null = true;
-      break;
-    }
-  }
-
-  // Error Handling 
-  if (readlen == 0) {
-    c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
-    if (RPCSTUBSOCKET-> eof()) {
-      c150debug->printf(C150RPCDEBUG,"simplefunction.stub: EOF signaled on input");
-    } else {
-      throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
-    }
-  } else if (!read_null) { // If we didn't get a null, input message was poorly formatted
-    throw C150Exception("simplefunction.stub: method name not null terminated or too long");
-  }
-
-  // buffer to string
-  string message(buffer);
-  message = to_string(message_size) + "{" + message; // manually reformat message
-
-  return message;
-}
-
-// each object is preceeded with a character length
-// e.g. "34{ ... }"
-size_t extract_object_length(string json) {
-  size_t obj_start = json.find('{');  // skip over sizing info
-  return stoi(json.substr(0, obj_start));
-}
-
-float extract_float(string json, string key) {
-  // Warning: regex requires at least one digit preceding the decimal
-  regex pair_regex("\"(" + key + ")\":(-?[0-9]+[\\.][0-9]*)[,}\\]]"); // "(my_key)":(-?[0-9]+[\.][0-9]*)[,}\]]
-  smatch pair_matches;
-  
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for float belonging to key '" + key + "' failed."); }
-  
-  return stof(pair_matches[2]);
-}
-
-int extract_int(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":(-?[0-9]+)[,}\\]]"); // "(my_key)":(-?[0-9]+)[,}\]]
-  smatch pair_matches;
-  
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for int belonging to key '" + key + "' failed."); }
-  
-  return stoi(pair_matches[2]);
-}
-
-bool extract_bool(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":(true|false)[,}\\]]"); // "(my_key)":(true|false)[,}\]]
-  smatch pair_matches;
-  
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for bool belonging to key '" + key + "' failed."); }
-  
-  return pair_matches[2] == "true";
-}
-
-// Extracts the first instance of the key in the string, regardless of nesting level.
-// If we care about nesting level, then we need to just parse the JSON fully before
-// we do any data extraction/etc. on it.
-string extract_string(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":\"([^\\\"]+)\"[,}\\]]"); // "(my_key)":"([^\"]+)"[,}\]]
-  smatch pair_matches;
-  
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for string belonging to key '" + key + "' failed."); }
-  
-  // cout << "Prefix: '" << pair_matches.prefix() << "'\n";
-  // cout << "full match: '" << pair_matches[0] << "'\n";
-  // cout << "key: '" << pair_matches[1] << "'\n";
-  // cout << "value: '" << pair_matches[2] << "'\n";
-  // cout << "Suffix: '" << pair_matches.suffix() << "\'\n";
-  
-  return pair_matches[2];
-}
-
-// extracts an array from an object correctly only if it is the last key
-// TODO: refind to take into account the prepended length
-string extract_array(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":[0-9]+\\[([0-9]+\\{.+\\})\\]");
-  smatch pair_matches;
-
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for array belonging to key '" + key + "' failed."); }
-  return pair_matches[2]; 
-}
-
-// extracts an array from an object correctly only if it is the last key
-// TODO: refind to take into account the prepended length
-string extract_object(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":([0-9]+\\{.+\\})");
-  smatch pair_matches;
-
-  bool pair_exists = regex_search(json, pair_matches, pair_regex);
-  if (!pair_exists) { throw runtime_error("Search for object belonging to key '" + key + "' failed."); }
-  return pair_matches[2]; 
-}
-
 int* handle_int_3(string int_3_obj) {
-  int *my_int = (int *) malloc(sizeof(int) * 3);
-  string objs = extract_array(int_3_obj, "value");
+  int *my_int = new int[3];
+  string ints = extract_array(int_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
-    size_t i_param_size = extract_object_length(objs);
-    size_t i_param_start = objs.find('{');
-    size_t i_param_len = i_param_size;
-    
-    string i_param = objs.substr(i_param_start, i_param_len);
-    // cout << "i: " << i_param << endl;
-    int x = handle_int(i_param);
-    // cout << "i value: " << x << endl;
-
-    if (i < 2) {// not the last iteration
-      objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
-    }
-
-    my_int[i] = x;
+    my_int[i] = handle_int(consume_object(ints));
   }
 
   return my_int;
@@ -485,54 +257,32 @@ int* handle_int_3(string int_3_obj) {
 
 
 Person* handle_people_3(string people_3_obj) {
-
-  Person *my_people;
-  my_people = new Person[3];
-
-  string objs = extract_array(people_3_obj, "value");
+  Person *my_people = new Person[3];
+  string people = extract_array(people_3_obj, "value");
 
   for (int i = 0; i < 3; i++) {
-    size_t i_param_size = extract_object_length(objs);
-    size_t i_param_start = objs.find('{');
-    size_t i_param_len = i_param_size;
-    
-    string i_param = objs.substr(i_param_start, i_param_len);
-    // cout << "i: " << i_param << endl;
-    Person x = handle_person(i_param);
-    cout << x.firstname << endl; 
-    // cout << "i value: " << x << endl;
-
-    if (i < 2) {// not the last iteration
-      objs = objs.substr(i_param_start + i_param_len + strlen(","), objs.npos);
-    }
-
-    cout << "made it here" << endl; 
-    my_people[i] = x;
-    cerr << "segeed here" << endl;
-    cerr << my_people[i].firstname << endl;
-    
+    my_people[i] = handle_person(consume_object(people));
   }
 
   return my_people;
 }
 
 Person handle_person(string person_obj) {
-
-  // Had to mess around to properly return struct 
-  //Person my_person = *(Person *)malloc(sizeof(Person));
-  Person* my_person = new struct Person;
+  Person *my_person = new struct Person;
   string value_obj = extract_object(person_obj, "value");
 
-  // TODO extract based on length, not just regex
-  my_person->firstname = handle_string(extract_string(extract_object(value_obj, "firstname"), "value"));
-  my_person->lastname = handle_string(extract_string(extract_object(value_obj, "lastname"), "value"));
+  my_person->firstname = handle_string(extract_object(value_obj, "firstname"));
+  my_person->lastname = handle_string(extract_object(value_obj, "lastname"));
   my_person->age = handle_int(extract_object(value_obj, "age"));
+  
+  // can't assign arrays directly, so need to loop through to assign each value
+  int *favorite_numbers = handle_int_3(extract_object(value_obj, "favorite_numbers"));
+  for (int i = 0; i < 3; i++) { my_person->favorite_numbers[i] = favorite_numbers[i]; }
  
-  return *(my_person);
+  return *my_person;
 }
 
 ThreePeople handle_ThreePeople(string ThreePeople_obj) {
-
   ThreePeople* people = new struct ThreePeople;
   string value_obj = extract_object(ThreePeople_obj, "value");
 
@@ -540,19 +290,19 @@ ThreePeople handle_ThreePeople(string ThreePeople_obj) {
   people->p2 = handle_person(extract_object(value_obj, "p2"));
   people->p3 = handle_person(extract_object(value_obj, "p3"));
 
-  return *(people);
+  return *people;
 }
 
 int handle_int(string int_object) {
   return extract_int(int_object, "value");
 }
 
-string handle_string(string s_string) {
-  return s_string;
+string handle_string(string string_object) {
+  return extract_string(string_object, "value");
 }
 
-float handle_float(string float_string) {
-  return stof(float_string);
+float handle_float(string float_object) {
+  return extract_float(float_object, "value");
 }
 
 
