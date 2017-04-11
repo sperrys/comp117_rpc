@@ -32,6 +32,7 @@ using namespace std;
 #include "lotsofstuff.idl"
 
 #include "rpcproxyhelper.h"
+#include "utility.h"
 
 #include "c150debug.h"
 #include <cstdio>
@@ -48,20 +49,12 @@ const string TYPE_KEY = "type";
 const string STRUCT_KEY = "is_struct";
 const string ARRAY_KEY = "is_array";
 
-
-string add_size_to_message(string message) {
-  stringstream m_size; 
-  int length = message.length();
-  m_size << "size:" << length << "," << message;
-  return m_size.str();
-}
-
 string jsonify_pair(string key, string value, string json_type) {
   stringstream pair;
   if (json_type == "string" || json_type == "char") {
-    pair << "\\\"" << key << "\\\":\\\"" << value << "\\\"";
+    pair << "\"" << key << "\":\"" << value << "\"";
   } else {
-    pair << "\\\"" << key << "\\\":" << value;
+    pair << "\"" << key << "\":" << value;
   }
   return pair.str();
 }
@@ -74,7 +67,7 @@ string jsonify_object(vector<string> pairs) {
     if (i != pairs.size() - 1) obj << ",";
   }
   obj << "}";
-  return obj.str();
+  return to_string(obj.str().length()) + obj.str();
 }
 
 string jsonify_array(vector<string> objects) {
@@ -85,7 +78,7 @@ string jsonify_array(vector<string> objects) {
     if (i != objects.size() - 1) arr << ",";
   }
   arr << "]";
-  return arr.str();
+  return to_string(arr.str().length()) + arr.str();
 }
 
 // returns an param description JSON object
@@ -184,6 +177,8 @@ string handle_Person(Person my_Person) {
   elements.push_back(jsonify_pair("firstname", handle_string(my_Person.firstname), "object"));
   elements.push_back(jsonify_pair("lastname", handle_string(my_Person.lastname), "object"));
   elements.push_back(jsonify_pair("age", handle_int(my_Person.age), "object"));
+  elements.push_back(jsonify_pair("favorite_numbers", handle_int_3(my_Person.favorite_numbers), "object"));
+
   stringstream value;
   value << jsonify_object(elements);
 
@@ -192,6 +187,27 @@ string handle_Person(Person my_Person) {
   param_pairs.push_back(jsonify_pair(STRUCT_KEY, "true", "bool"));
   param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
   param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));
+
+  return jsonify_object(param_pairs);
+}
+
+string handle_people_array(Person p[3]) {
+  vector<string> param_pairs;
+
+  // value to string conversion
+  string type = "p[3]";
+  vector<string> elements;
+  for (int i = 0; i < 3; i++) {
+    elements.push_back(handle_Person(p[i]));
+  }
+  stringstream value;
+  value << jsonify_array(elements);
+
+  // compose the inner description object
+  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "true", "bool"));
+  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "array"));
 
   return jsonify_object(param_pairs);
 }
@@ -239,6 +255,15 @@ void person_func(Person p) {
 
   cout << "The final message: " << message << "\n";
 
+  // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: person_func() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: person_func() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
   return;
 }
 
@@ -264,6 +289,49 @@ void people_func(ThreePeople p) {
 
   cout << "The final message: " << message << "\n";
 
+   // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_func() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_func() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
+  return;
+}
+
+void people_array(Person p[]) {
+  // Compose the remote call
+  string message;
+  vector<string> pairs;
+
+  // Remote call metadata
+  pairs.push_back(jsonify_pair("method", "people_array", "string"));
+  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+
+  // Remote call params
+  vector<string> param_objects;
+  param_objects.push_back(handle_people_array(p));
+  cout << "object for " << "p" << ": " << handle_people_array(p) << "\n";
+
+  string params = jsonify_array(param_objects);
+  pairs.push_back(jsonify_pair("params", params, "array"));
+
+  // Finalize the message
+  message = jsonify_object(pairs);
+
+  cout << "The final message: " << message << "\n";
+
+   // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_array() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: people_array() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
   return;
 }
 
@@ -274,6 +342,8 @@ int sum(int x[3]) {
   //    params: [
   //      {
   //        type: "int[3]"
+  //        is_struct: false,
+  //        is_array: true,
   //        value: [
   //          1: {
   //            type: "int",
@@ -331,6 +401,15 @@ int sum(int x[3]) {
 
   cout << "The final message: " << message << "\n";
 
+  // Send the remote call
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invoked");
+  RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
+
+  // Read the response
+  char readBuffer[5];  // to read magic value DONE + null
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invocation sent, waiting for response");
+  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+
   return 0;
 }
 
@@ -372,12 +451,7 @@ int add(int x, int y) {
   // Finalize the message
   message = jsonify_object(pairs);
 
-  // Add the length of the JSON to the message 
-  message = add_size_to_message(message);
-
-
   cout << "The final message: " << message.c_str() << "\n";
-
 
   // Send the remote call
   c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() invoked");

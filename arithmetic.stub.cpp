@@ -39,10 +39,14 @@
 // TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
+using namespace std;
+#include <string>
+
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
 #include "rpcstubhelper.h"
+#include "utility.h"
 
 #include <cstdio>
 #include <cstring>
@@ -51,7 +55,20 @@
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
-void get_json();
+// ======================================================================
+//
+//                        COMMON SUPPORT FUNCTIONS
+//
+// ======================================================================
+
+// STRING TO CPP FUNCS
+Person handle_person(string person_obj);
+Person* handle_people_3(string json);
+ThreePeople handle_ThreePeople(string ThreePeople_obj);
+float handle_float(string json);
+int *handle_int_3(string json);
+int handle_int(string json);
+string handle_string(string json);
 
 // ======================================================================
 //                             STUBS
@@ -66,17 +83,15 @@ void get_json();
 //    code above).
 //
 // ======================================================================
-  
 
-
-void __add(string message, int params) {
-  //char doneBuffer[5] = "DONE";  // to write magic value DONE + null
-
+void __add(string json, int param_count, string params) {
+  int x = handle_int(consume_object(params));
+  int y = handle_int(consume_object(params));
   //
   // Time to actually call the function 
   //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking add()");
-  add(1, 2);
+  add(x, y);
 
   //
   // Send the response to the client
@@ -87,6 +102,87 @@ void __add(string message, int params) {
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
+
+void __sum(string json, int param_count, string params) {
+  int *x = handle_int_3(consume_object(params));
+  cout << *x << endl;
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+}
+
+void __person_func(string json, int param_count, string params) {
+  Person my_person = handle_person(consume_object(params));
+
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+}
+
+void __people_func(string json, int param_count, string params) {
+  ThreePeople people = handle_ThreePeople(consume_object(params));
+
+  cout << people.p1.firstname << "'s favorite numbers: " <<  people.p1.favorite_numbers[0] << ", " << people.p1.favorite_numbers[1] << ", " << people.p1.favorite_numbers[2] << endl;
+  cout << people.p2.firstname << "'s favorite numbers: " <<  people.p2.favorite_numbers[0] << ", " << people.p2.favorite_numbers[1] << ", " << people.p2.favorite_numbers[2] << endl;
+  cout << people.p3.firstname << "'s favorite numbers: " <<  people.p3.favorite_numbers[0] << ", " << people.p3.favorite_numbers[1] << ", " << people.p3.favorite_numbers[2] << endl;
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1
+}
+
+void __people_array(string json, int param_count, string params) {
+  Person *people = handle_people_3(consume_object(params));
+  cout << people[0].firstname << endl;
+
+  //
+  // Time to actually call the function 
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking sum()");
+  // sum(x);
+
+  //
+  // Send the response to the client
+  //
+  // If func1 returned something other than void, this is
+  // where we'd send the return value back.
+  //
+  c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
+  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1
+}
+
 
 void __subtract(string json, int params) {
   //char doneBuffer[5] = "DONE";
@@ -104,12 +200,7 @@ void __divide(string json, int params) {
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
 
-//
-//     __badFunction
-//
-//   Pseudo-stub for missing functions.
-//
-
+// Pseudo-stub for missing functions.
 void __badFunction(string func_name) {
   //char doneBuffer[5] = "BAD";  // to write magic value DONE + null
 
@@ -122,193 +213,96 @@ void __badFunction(string func_name) {
   //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
 }
 
-
-
-// ======================================================================
-//
-//                        COMMON SUPPORT FUNCTIONS
-//
-// ======================================================================
-
-// JSON FUNCS
-int get_json_size(char *buffer, unsigned int bufSize);
-void get_json(char *buffer, unsigned int bufSize);
-
-// PARSING FUNCS
-string get_func_name(string json);
-int get_num_params(string json);
-
-// STRING TO CPP FUNCS
-int handle_int(string);
-float handle_float(string);
-string handle_string(string);
-
-
-//
-//                         dispatchFunction()
-//
-//   Called when we're ready to read a new invocation request from the stream
-//
-
+// Called when we're ready to read a new invocation request from the stream
 void dispatchFunction() {
-  cout << "Dispatched again";
-  char JsonSizeBuffer[30];
+  // Read the JSON message in
+  string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));
 
-  // Get the Size of the Json 
-  int json_size = get_json_size(JsonSizeBuffer, sizeof(JsonSizeBuffer));
-
-  // Throw Error For Invalid JSON ("Shouldn't be possible?")
-  if(json_size == -1)
-    throw C150Exception("Finding Json Size Failed");
-
-  // Load the Json into the Buffer
-  char JsonBuffer[json_size];
-  get_json(JsonBuffer, sizeof(JsonBuffer));
-
-  cout << "Loaded Json:" << JsonBuffer << endl;
-
-  //Save the Json as a string 
-  string json_str(JsonBuffer, json_size);
-  //Get the function name from json
-  string func_name = get_func_name(json_str);
-  //Get the num of params from json 
-  int params = get_num_params(json_str);
-
- 
-
-  //
-  // We've read the function name, call the stub for the right one
-  // The stub will invoke the function and send response.
-  //
-  
+  string func_name = extract_string(json_str, "method");
+  int param_count = extract_int(json_str, "param_count");
+  string params = extract_array(json_str, "params");
 
   if (!RPCSTUBSOCKET->eof()) {
     if (func_name == "add")
-      __add(json_str, params);
+      __add(json_str, param_count, params);
+    else   if (func_name == "person_func")
+      __person_func(json_str, param_count, params);
+    else   if (func_name == "people_func")
+      __people_func(json_str, param_count, params);
+    else   if (func_name == "sum")
+      __sum(json_str, param_count, params);
     else   if (func_name == "subtract")
-      __subtract(json_str, params);
+      __subtract(json_str, param_count);
     else   if (func_name == "multiply")
-      __multiply(json_str, params);
+      __multiply(json_str, param_count);
     else   if (func_name == "divide")
-      __divide(json_str, params);
+      __divide(json_str, param_count);
+    else   if  (func_name == "people_array")
+      __people_array(json_str, param_count, params);
     else
       __badFunction(func_name);
   }
 }
-                 
-//   Important: this routine must leave the sock open but at EOF
-//   when eof is read from client. 
-//   This function parses the size of the json message from the socket
-int get_json_size(char *buffer, unsigned int bufSize) {
-  unsigned int i;
-  char *bufp;      // next char to read
-  ssize_t readlen; // amount of data read from socket
 
-  bufp = buffer;
+int* handle_int_3(string int_3_obj) {
+  int *my_int = new int[3];
+  string ints = extract_array(int_3_obj, "value");
 
-  for (i=0; i< bufSize; i++) {
-    readlen = RPCSTUBSOCKET-> read(bufp, 1);  // read a byte
-
-    // if we hit the first comma that delimits size, parse and
-    // convert the size of the json to an int 
-    // +1s are to account for delimiter on both ends
-    // TODO: clean this up, more error handles, better way to do this?
-    if (*bufp == ',') {
-      string s_buffer = string(buffer);
-      unsigned delim_1 = s_buffer.find(':');
-      unsigned delim_2 = s_buffer.find(',');
-      string s_size = s_buffer.substr(delim_1 + 1, delim_2 - (delim_1 +1));
-      cout << "JSON size: " << s_size << endl;
-      return (stoi(s_size));
-    }
-    bufp++;
-
-    // Error Handle 
-    if (readlen == 0) {
-    c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
-      if (RPCSTUBSOCKET-> eof()) {
-        c150debug->printf(C150RPCDEBUG,"simplefunction.stub: EOF signaled on input");
-      } else {
-      throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
-      }
-    }  
-  }
-  // Return Bad Size if Unseen Error
-  return -1;   
-} 
-
-// This function Puts the JSON String in the Buffer
-void get_json(char *buffer, unsigned int bufSize)  {
-  unsigned int i;
-  char *bufp;      // next char to read
-  ssize_t readlen; // amount of data read from socket
-  bool readnull;
-
-  bufp = buffer;
-
-  // + 1 is to deal with null termination
-  for (i=0; i< bufSize + 1; i++) {
-    readlen = RPCSTUBSOCKET-> read(bufp, 1);  // read a byte
-
-    if (readlen == 0) {
-      break;
-    }
-    // check for null and bump buffer pointer
-    if (*bufp++ == '\0') {
-      readnull = true;
-      break;
-    }
+  for (int i = 0; i < 3; i++) {
+    my_int[i] = handle_int(consume_object(ints));
   }
 
-  // Error Handling 
-  if (readlen == 0) {
-    c150debug->printf(C150RPCDEBUG,"simplefunction.stub: read zero length message, checking EOF");
-    if (RPCSTUBSOCKET-> eof()) {
-      c150debug->printf(C150RPCDEBUG,"simplefunction.stub: EOF signaled on input");
+  return my_int;
+}
 
-    } else {
-      throw C150Exception("simplefunction.stub: unexpected zero length read without eof");
-    }
+
+Person* handle_people_3(string people_3_obj) {
+  Person *my_people = new Person[3];
+  string people = extract_array(people_3_obj, "value");
+
+  for (int i = 0; i < 3; i++) {
+    my_people[i] = handle_person(consume_object(people));
   }
-  // If we didn't get a null, input message was poorly formatted
-    else if(!readnull) 
-    throw C150Exception("simplefunction.stub: method name not null terminated or too long");
+
+  return my_people;
 }
 
-// Ugly Parses the Function Name from Method, Maybe Find 3rd Party Library?
-// Probably better way to do this? At Very Least modularize?
-string get_func_name(string json) {
-  string func_key = "\"method\":";
-  unsigned function_pos = json.find(func_key);
-  string parsed_json = json.substr(function_pos + func_key.length() + 1, json.npos);
-  unsigned delim = parsed_json.find('\"');
-  return parsed_json.substr(0, delim); 
+Person handle_person(string person_obj) {
+  Person *my_person = new struct Person;
+  string value_obj = extract_object(person_obj, "value");
+
+  my_person->firstname = handle_string(extract_object(value_obj, "firstname"));
+  my_person->lastname = handle_string(extract_object(value_obj, "lastname"));
+  my_person->age = handle_int(extract_object(value_obj, "age"));
+  
+  // can't assign arrays directly, so need to loop through to assign each value
+  int *favorite_numbers = handle_int_3(extract_object(value_obj, "favorite_numbers"));
+  for (int i = 0; i < 3; i++) { my_person->favorite_numbers[i] = favorite_numbers[i]; }
+ 
+  return *my_person;
 }
 
-// Ugly Parses the Num of Params from Method, Maybe Find 3rd Party Library?
-// Probably better way to do this? At Very Least modularize?
-int get_num_params(string json) {
-  string p_num_key = "\"param_count\":";
-  unsigned function_pos = json.find(p_num_key);
-  string parsed_json = json.substr(function_pos + p_num_key.length() + 1, json.npos);
-  unsigned delim = parsed_json.find('\"');
-  return stoi(parsed_json.substr(0, delim)); 
+ThreePeople handle_ThreePeople(string ThreePeople_obj) {
+  ThreePeople* people = new struct ThreePeople;
+  string value_obj = extract_object(ThreePeople_obj, "value");
+
+  people->p1 = handle_person(extract_object(value_obj, "p1"));
+  people->p2 = handle_person(extract_object(value_obj, "p2"));
+  people->p3 = handle_person(extract_object(value_obj, "p3"));
+
+  return *people;
 }
 
-
-// Basic Function That Handle Basic Conversions 
-// from string to CPP types
-
-int handle_int(string int_string) {
-  return stoi(int_string);
+int handle_int(string int_object) {
+  return extract_int(int_object, "value");
 }
 
-string handle_string(string s_string) {
-  return s_string;
+string handle_string(string string_object) {
+  return extract_string(string_object, "value");
 }
 
-float handle_float(string float_string) {
-  return stof(float_string);
+float handle_float(string float_object) {
+  return extract_float(float_object, "value");
 }
 
 
