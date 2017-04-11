@@ -71,11 +71,11 @@ pingstreamserver: pingstreamserver.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 #
 ########################################################################
 
-arithmeticlient: arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o  $(C150AR) $(C150IDSRPCAR)
+arithmeticlient: arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o rpcproxy_utils.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o rpcproxy_utils.o $(C150AR) $(C150IDSRPCAR)
 
-arithmeticserver: arithmetic.stub.o rpcserver.o rpcstubhelper.o arithmetic.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o arithmeticserver rpcserver.o arithmetic.stub.o arithmetic.o rpcstubhelper.o $(C150AR) $(C150IDSRPCAR) 
+arithmeticserver: arithmetic.stub.o rpcserver.o rpcstubhelper.o arithmetic.o rpcstub_utils.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o arithmeticserver rpcserver.o arithmetic.stub.o arithmetic.o rpcstubhelper.o rpcstub_utils.o $(C150AR) $(C150IDSRPCAR) 
 
 
 
