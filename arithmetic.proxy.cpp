@@ -32,6 +32,7 @@ using namespace std;
 #include "lotsofstuff.idl"
 
 #include "rpcproxyhelper.h"
+#include "utility.h"
 
 #include "c150debug.h"
 #include <cstdio>
