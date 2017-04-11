@@ -19,3 +19,14 @@ float extract_float(string json, string key);
 int extract_int(string json, string key);
 string extract_object(string json, string key);
 string extract_string(string json, string key);
+
+
+// Proxy utility Functions 
+string jsonify_pair(string key, string value, string json_type);
+string jsonify_object(vector<string> pairs);
+string jsonify_array(vector<string> objects);
+
+string handle_int(int my_int);
+string handle_bool(bool my_bool);
+string handle_string(string my_string);
+string handle_char(char my_char);

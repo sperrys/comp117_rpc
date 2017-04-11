@@ -34,13 +34,13 @@ NAMESPACE = "using namespace "
 
 # These arrays define the libaries included 
 # for the stub 
-STUB_GLOBALS = ["string", "cstdio", "cstring", "rpcstub_utils.h"]
+STUB_GLOBALS = ["string", "cstdio", "cstring", "utility.h"]
 STUB_LOCALS = ["rpcstubhelper.h", "c150debug.h"]
 
 # These arrays define the libaries included 
 # for the proxy
 PROXY_GLOBALS  = ["vector", "cstring", "cstdio", "stdbool.h", "iostream", "sstream"]
-PROXY_LOCALS = ["rpcproxyhelper.h", "c150debug.h", "rpcproxy_utils.h"]
+PROXY_LOCALS = ["rpcproxyhelper.h", "c150debug.h", "utility.h"]
 
 #These arrays define the namespaces for each file 
 P_NAMESPACE = ["C150NETWORK", "std"]
@@ -192,7 +192,6 @@ def CheckArgs(argv):
 		return filename
 
 	except Exception as e:
-		print(e)
 		print >> sys.stderr, "Usage: %s <idlfilename>" % sys.argv[0] 
 
 
@@ -241,6 +240,230 @@ def generate_hand_func_body(type_name, stub_type):
 		return ""
 
 
+def construct_idl_type_decl(name, sig):
+
+	if (sig["type_of_type"] == "builtin"):
+		return "" 
+
+	decl = "string" + SPACE + add_handle(name) + '(' 
+
+	if sig["type_of_type"] == "array":
+		decl += sig["member_type"] + SPACE + add_my(name) + SPACE + '[' + str(sig["element_count"]) + ']' + SPACE +  ')' + '{' + NEWLINE
+
+	# if the type is an array, create function decl that takes in the struct 
+	if sig["type_of_type"] == "struct":
+		decl += name + SPACE + add_my(name) + ')' + SPACE + '{' + NEWLINE 
+
+	return decl 
+
+
+def construct_idl_type_body(name, sig):
+	body = ""
+
+	if sig["type_of_type"] == "struct":
+		body += handle_p_type_struct(name, sig)
+	if sig["type_of_type"] == "array":
+		body += handle_p_type_array(name, sig)
+	
+	return body 
+
+
+# Code that generates the handling of a proxy array type
+def handle_p_type_array(name, sig):
+	member_type = add_handle(sig["member_type"])
+	num_values = sig["element_count"]
+	mname = add_my(name)
+
+	body = """    vector<string> param_pairs; \n \n    // value to string conversion \n    string type = "{name}"; \n    vector <string> elements; \n \n"""
+	mbody = body.format(name=name)
+	
+	mem_string = """    for (int i = 0; i < {iterations}; i++) {{ \n         elements.push_back({mtype_handle}({mname}[i]));\n    }}\n    stringstream value;\n    value << jsonify_array(elements); \n"""
+	mem_format = mem_string.format(iterations=str(num_values-1), mname=mname, mtype_handle=member_type, mname2=mname)
+			
+	mbody += mem_format
+			
+	
+	mbody += """\n    // compose the inner description object\n    param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));\n    param_pairs.push_back(jsonify_pair(ARRAY_KEY, "true", "bool"));\n    param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));\n\n    return jsonify_object(param_pairs);\n}\n\n"""
+	
+	return mbody
+
+
+# Code that generates the handling of a proxy struct type
+def handle_p_type_struct(name, sig):
+	body = """    vector<string> param_pairs; \n \n    // value to string conversion \n    string type = "{name}"; \n    vector <string> elements; \n \n"""
+	sbody = ""
+	# loop through eahc member of the struct
+	for mem in sig["members"]:
+		mname = mem["name"]
+		mtype = mem["type"]
+		mtype_handle = add_my(mtype)
+
+		mem_string = """    elements.push_back(jsonify_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object");\n"""
+		mem_format = mem_string.format(mname=mname, mtype_handle=mtype_handle, my_name=name, mname2=mname)
+			
+		body += mem_format
+			
+	
+	body += """\n    // compose the inner description object\n    param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(jsonify_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));\n\n    return jsonify_object(param_pairs);\n}}\n\n"""
+  	sbody = body.format(name=name)
+	
+	return sbody
+
+
+def proxy_type_funcs(idl_types): 
+	idl_type_funcs = ""
+
+	for name, sig in idl_types:
+			func = ""
+			func = construct_idl_type_decl(name, sig)
+			func += construct_idl_type_body(name, sig)
+			idl_type_funcs += func 
+
+	return idl_type_funcs
+
+# functions associated with idl types, dependent on idl 
+def generate_idl_type_func(idl_types, stub_type):
+
+	idl_type_funcs = ""
+	if stub_type == "PROXY":
+		idl_type_funcs += proxy_type_funcs(idl_types);
+
+	elif stub_type == "STUB":
+		idl_type_funcs += stub_type_funcs(idl_types);
+	return idl_type_funcs
+
+
+
+def construct_idl_func_decl(name, sig):
+
+	# Python Array of all args (each is a hash with keys "name" and "type")
+	args = sig["arguments"]
+	# Make a string of form:  "type1 arg1, type2 arg2" for use in function sig
+	argstring = ', '.join([a["type"] + ' ' + a["name"] for a in args])
+	# Construct Variable of function name signature)
+	func_sig = sig["return_type"] + " " + name +'(' + argstring +')'
+	# Add signature to list 
+	return (func_sig + "  " + '{'  + NEWLINE)
+
+def construct_idl_func_body(name, sig):
+	args = sig["arguments"]
+	num_args = len(args)
+	body = """    // Compose the remote call\n string message; \n    vector<string> pairs; \n"""
+	body += """    //Remote Call metadata \n    pairs.push_back(jsonify_pair("method", "{name}", "string"));\n"""
+ 	body += """    pairs.push_back(jsonify_pair("param_count", "{param_count}, "string)); \n \n"""
+ 	body += """   // Remote call params \n    vector<string> param_objects; \n """
+
+ 	b = body.format(param_count=num_args, name=name)
+ 	body = b 
+
+ 	for a in args: 
+ 		m = """   param_objects.push_back({type}, {name}));\n  """;
+ 		f_m = m.format(type=add_handle(a["type"]), name=a["name"])
+ 		body += f_m
+
+ 	body += """    string params = jsonify_array(param_objects); \n """
+  	body += """    pairs.push_back(jsonify_pair("params", params, "array")); \n""" 
+	body += """    // Finalize the message \n  """ 
+  	body += """    message = jsonify_object(pairs);\n"""
+
+  	body += """    // Send the remote call\n"""
+  	body += """   c150debug->printf(C150RPCDEBUG," {name}() invoked");\n"""
+ 	body += """   RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null \n""" 
+
+  	body += """   // Read the response\n """
+  	body += """   char readBuffer[5];  // to read magic value DONE + null \n"""
+  	body += """   c150debug->printf(C150RPCDEBUG,"{name}() invocation sent, waiting for response");\n"""
+  	body += """RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE \n }} """
+
+  	f_body = body.format(name=name)
+
+	return body
+
+def proxy_func_funcs(idl_funcs): 
+	funcs = ""
+
+	for name, sig in idl_funcs:
+		func = ""
+		func += construct_idl_func_decl(name, sig)
+		funcs += construct_idl_func_body(name, sig)
+		print func 
+
+	return funcs
+	
+def stub_func_funcs(idl_funcs): 
+	return ""
+
+
+# functions associated with idl funcs, dependent on idl 
+def generate_idl_func_func(idl_funcs, stub_type):
+	idl_func_funcs = ""
+	if stub_type == "PROXY":
+		idl_func_funcs += proxy_func_funcs(idl_funcs);
+
+	elif stub_type == "STUB":
+		idl_func_funcs += stub_func_funcs(idl_funcs);
+	return idl_func_funcs
+
+
+
+
+
+
+
+
+
+
+#
+#	 				TODO: FUNCS 
+# 
+
+# Need ot check this 
+def write_func_decl(return_type, name, params): 
+	decl = return_type + SPACE + name +'('
+
+	for i in params:
+		decl + params[i].type + SPACE + params[i].name
+
+		if i != length(params):
+			decl += COMMA + SPACE
+
+	decl += ')'
+	return decl
+
+
+
+
+def stub_type_funcs(idl_types):
+	idl_type_funcs = ""
+
+	return idl_type_funcs
+
+
+
+
+
+
+
+
+
+
+
+
+# 
+#		WRITTEN FUNCS, BUT NOT CURRENTLY USED
+# 
+
+
+# Function that takes the json and an array 
+# parses the json and stores a string of the func sig
+# in the provided array
+# Returns: The array of string func sigs
+
+
+	return function_array
+
+
+
 # generated functions that aren't dependenet on idl
 # Returns: string of generated code for basic functions
 # 
@@ -268,124 +491,6 @@ def generate_handle(type_name, stub_type):
 
 	return func 
 		
-
-
-
-#
-#	 				TODO: FUNCS 
-# 
-
-# Need ot check this 
-def write_func_decl(return_type, name, params): 
-	decl = return_type + SPACE + name +'('
-
-	for i in params:
-		decl + params[i].type + SPACE + params[i].name
-
-		if i != length(params):
-			decl += COMMA + SPACE
-
-	decl += ')'
-	return decl
-
-
-
-def construct_idl_type_decl(name, sig):
-	decl = "string" + SPACE + add_handle(name) + '(' 
-
-	if sig["type_of_type"] == "array":
-		decl += sig["member_type"] + SPACE + '[' + str(sig["element_count"]) + ']' + SPACE +  ')' + '{' + NEWLINE
-
-	# if the type is an array, create function decl that takes in the struct 
-	if sig["type_of_type"] == "struct":
-		decl += name + SPACE + add_my(name) + ')' + SPACE + '{' + NEWLINE 
-
-	return decl 
-
-
-def construct_idl_type_body(name, sig):
-	body = ""
-	if sig["type_of_type"] == "struct":
-		body += """    vector<string> param_pairs; \n \n    // value to string conversion \n    string type = "{name}"; \n    vector <string> elements; \n \n"""
-		# loop through elements of the struct
-		for mem in sig["members"]:
-			mname = mem["name"]
-			mtype = mem["type"]
-			mtype_handle = add_handle(mtype)
-			my_name = add_my(name)
-
-			mem_string = """    elements.push_back(jsonify_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object");\n"""
-			mem_format = mem_string.format(mname=mname, mtype_handle=mtype_handle, my_name=my_name, mname2=mname)
-			
-			body += mem_format
-			
-		body += """\n    // compose the inner description object\n    param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(jsonify_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));\n\n    return jsonify_object(param_pairs);\n}}\n\n"""
-  		body = body.format(name=name)
-	
-	return body 
-
-				
-
-def proxy_type_funcs(idl_types): 
-	idl_type_funcs = ""
-
-	for name, sig in idl_types:
-			func = ""
-			func = construct_idl_type_decl(name, sig)
-			func += construct_idl_type_body(name, sig)
-			idl_type_funcs += func 
-
-		
-	print idl_type_funcs
-	return idl_type_funcs
-
-
-
-# functions associated with idl types, dependent on idl 
-def generate_idl_type_func(idl_types, stub_type):
-
-	idl_type_funcs = ""
-	if stub_type == "PROXY":
-		idl_type_funcs += proxy_type_funcs(idl_types);
-
-	return idl_type_funcs
-
-
-
-
-
-
-
-
-# functions associated with idl funcs, dependent on idl 
-def generate_idl_func_func(idl_funcs, stub_type):
-	return ""
-
-
-# 
-#		WRITTEN FUNCS, BUT NOT CURRENTLY USED
-# 
-
-
-
-# Function that takes the json and an array 
-# parses the json and stores a string of the func sig
-# in the provided array
-# Returns: The array of string func sigs
-
-def StoreFuncSigStrings(json, function_array):
-	# Loop storing each function signature in json as string
-	for  name, sig in json["functions"].iteritems():
-		# Python Array of all args (each is a hash with keys "name" and "type")
-		args = sig["arguments"]
-		# Make a string of form:  "type1 arg1, type2 arg2" for use in function sig
-		argstring = ', '.join([a["type"] + ' ' + a["name"] for a in args])
-		# Construct Variable of function name signature)
-		func_sig = sig["return_type"] + " " + name +'(' + argstring +')'
-		# Add signature to list 
-		function_array.append(func_sig)
-
-	return function_array
 
 
 

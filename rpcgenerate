@@ -35,17 +35,6 @@ s_includes = utils.generate_file_head(filename, "STUB")
 proxy.write(p_includes)
 stub.write(s_includes)
 
-# Generate general utlity functions for each file 
-# these functions are not specific to the idl, think handle_int()
-# deals with basic serialization and deserialiation determined by type
-p_util_funcs = utils.generate_util_funcs("PROXY")
-s_util_funcs = utils.generate_util_funcs("STUB")
-
-# Write the generated code for the general utility function to 
-# the respective file
-proxy.write(p_util_funcs)
-stub.write(s_util_funcs)
-
 # Generate specific utlity functions for each idl file 
 # these functions are specific to the idl types, think handle_person()
 # deals with more complex serialization and deserialiation determined by type
