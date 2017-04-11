@@ -1,3 +1,10 @@
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <stdbool.h>
+#include <string>
+#include <vector>
 
 //
 // TCP message utility functions
@@ -22,11 +29,11 @@ string extract_string(string json, string key);
 
 
 // Proxy utility Functions 
-string jsonify_pair(string key, string value, string json_type);
-string jsonify_object(vector<string> pairs);
-string jsonify_array(vector<string> objects);
+string serialize_pair(string key, string value, string json_type);
+string serialize_object(vector<string> pairs);
+string serialize_array(vector<string> objects);
 
-string handle_int(int my_int);
-string handle_bool(bool my_bool);
-string handle_string(string my_string);
-string handle_char(char my_char);
+string serialize_int(int my_int);
+string serialize_bool(bool my_bool);
+string serialize_string(string my_string);
+string serialize_char(char my_char);

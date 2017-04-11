@@ -28,7 +28,7 @@ const string ARRAY_KEY = "is_array";
 // The following functions deal with jsonifying certain aspects,
 // returning a string form 
 
-string jsonify_pair(string key, string value, string json_type) {
+string serialize_pair(string key, string value, string json_type) {
   stringstream pair;
   if (json_type == "string" || json_type == "char") {
     pair << "\"" << key << "\":\"" << value << "\"";
@@ -38,7 +38,7 @@ string jsonify_pair(string key, string value, string json_type) {
   return pair.str();
 }
 
-string jsonify_object(vector<string> pairs) {
+string serialize_object(vector<string> pairs) {
   stringstream obj;
   obj << "{";
   for (unsigned int i = 0; i < pairs.size(); i++) {
@@ -49,7 +49,7 @@ string jsonify_object(vector<string> pairs) {
   return to_string(obj.str().length()) + obj.str();
 }
 
-string jsonify_array(vector<string> objects) {
+string serialize_array(vector<string> objects) {
   stringstream arr;
   arr << "[";
   for (unsigned int i = 0; i < objects.size(); i++) {
@@ -60,12 +60,11 @@ string jsonify_array(vector<string> objects) {
   return to_string(arr.str().length()) + arr.str();
 }
 
-
 // 
 // Returns an param description JSON object for Basics Types 
 // 
 
-string handle_int(int my_int) {
+string serialize_int(int my_int) {
   vector<string> param_pairs;
   
   // value to string conversion
@@ -74,15 +73,15 @@ string handle_int(int my_int) {
   value << my_int;
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "int"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "int"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_bool(bool my_bool) {
+string serialize_bool(bool my_bool) {
   vector<string> param_pairs;
 
   // value to string conversion
@@ -91,29 +90,29 @@ string handle_bool(bool my_bool) {
   value << my_bool;
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "bool"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "bool"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_string(string my_string) {
+string serialize_string(string my_string) {
 
   vector<string> param_pairs;
   string type = "string";
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, my_string, "string"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, my_string, "string"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_char(char my_char) {
+string serialize_char(char my_char) {
   vector<string> param_pairs;
 
   // value to string conversion
@@ -122,12 +121,12 @@ string handle_char(char my_char) {
   value << my_char;
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "char"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "char"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
 // 
@@ -215,7 +214,7 @@ string consume_object(string &json) {
   // check for empty array
   if (obj_start == json.npos) { return ""; }
 
-  size_t obj_len = stoi(json.substr(json[0] == ',' ? 1 : 0, obj_start));
+  size_t obj_len = stoi(json.substr(jsohandln[0] == ',' ? 1 : 0, obj_start));
 
   // consume the object
   string obj = json.substr(obj_start, obj_len);

@@ -35,12 +35,6 @@ using namespace std;
 #include "utility.h"
 
 #include "c150debug.h"
-#include <cstdio>
-#include <stdbool.h>
-#include <cstring>
-#include <iostream>
-#include <sstream>
-#include <vector>
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
@@ -50,90 +44,90 @@ const string STRUCT_KEY = "is_struct";
 const string ARRAY_KEY = "is_array";
 
 
-string handle_int_3(int my_int_3[3]) {
+string serialize_int_3(int my_int_3[3]) {
   vector<string> param_pairs;
 
   // value to string conversion
   string type = "int[3]";
   vector<string> elements;
   for (int i = 0; i < 3; i++) {
-    elements.push_back(handle_int(my_int_3[i]));
+    elements.push_back(serialize_int(my_int_3[i]));
   }
   stringstream value;
-  value << jsonify_array(elements);
+  value << serialize_array(elements);
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "true", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "array"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "array"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_Person(Person my_Person) {
+string serialize_Person(Person my_Person) {
   vector<string> param_pairs;
 
   // value to string conversion
   string type = "Person";
   vector<string> elements;
-  elements.push_back(jsonify_pair("firstname", handle_string(my_Person.firstname), "object"));
-  elements.push_back(jsonify_pair("lastname", handle_string(my_Person.lastname), "object"));
-  elements.push_back(jsonify_pair("age", handle_int(my_Person.age), "object"));
-  elements.push_back(jsonify_pair("favorite_numbers", handle_int_3(my_Person.favorite_numbers), "object"));
+  elements.push_back(serialize_pair("firstname", serialize_string(my_Person.firstname), "object"));
+  elements.push_back(serialize_pair("lastname", serialize_string(my_Person.lastname), "object"));
+  elements.push_back(serialize_pair("age", serialize_int(my_Person.age), "object"));
+  elements.push_back(serialize_pair("favorite_numbers", serialize_int_3(my_Person.favorite_numbers), "object"));
 
   stringstream value;
-  value << jsonify_object(elements);
+  value << serialize_object(elements);
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "true", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_people_array(Person p[3]) {
+string serialize_people_array(Person p[3]) {
   vector<string> param_pairs;
 
   // value to string conversion
   string type = "p[3]";
   vector<string> elements;
   for (int i = 0; i < 3; i++) {
-    elements.push_back(handle_Person(p[i]));
+    elements.push_back(serialize_Person(p[i]));
   }
   stringstream value;
-  value << jsonify_array(elements);
+  value << serialize_array(elements);
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "true", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "array"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "array"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
-string handle_ThreePeople(ThreePeople my_ThreePeople) {
+string serialize_ThreePeople(ThreePeople my_ThreePeople) {
   vector<string> param_pairs;
 
   // value to string conversion
   string type = "ThreePeople";
   vector<string> elements;
-  elements.push_back(jsonify_pair("p1", handle_Person(my_ThreePeople.p1), "object"));
-  elements.push_back(jsonify_pair("p2", handle_Person(my_ThreePeople.p2), "object"));
-  elements.push_back(jsonify_pair("p3", handle_Person(my_ThreePeople.p3), "object"));
+  elements.push_back(serialize_pair("p1", serialize_Person(my_ThreePeople.p1), "object"));
+  elements.push_back(serialize_pair("p2", serialize_Person(my_ThreePeople.p2), "object"));
+  elements.push_back(serialize_pair("p3", serialize_Person(my_ThreePeople.p3), "object"));
   stringstream value;
-  value << jsonify_object(elements);
+  value << serialize_object(elements);
 
   // compose the inner description object
-  param_pairs.push_back(jsonify_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(jsonify_pair(STRUCT_KEY, "true", "bool"));
-  param_pairs.push_back(jsonify_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(jsonify_pair(VALUE_KEY, value.str(), "object"));
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));
 
-  return jsonify_object(param_pairs);
+  return serialize_object(param_pairs);
 }
 
 void person_func(Person p) {
@@ -142,19 +136,19 @@ void person_func(Person p) {
   vector<string> pairs;
 
   // Remote call metadata
-  pairs.push_back(jsonify_pair("method", "person_func", "string"));
-  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+  pairs.push_back(serialize_pair("method", "person_func", "string"));
+  pairs.push_back(serialize_pair("param_count", "1", "int"));
 
   // Remote call params
   vector<string> param_objects;
-  param_objects.push_back(handle_Person(p));
-  cout << "object for " << "p" << ": " << handle_Person(p) << "\n";
+  param_objects.push_back(serialize_Person(p));
+  cout << "object for " << "p" << ": " << serialize_Person(p) << "\n";
 
-  string params = jsonify_array(param_objects);
-  pairs.push_back(jsonify_pair("params", params, "array"));
+  string params = serialize_array(param_objects);
+  pairs.push_back(serialize_pair("params", params, "array"));
 
   // Finalize the message
-  message = jsonify_object(pairs);
+  message = serialize_object(pairs);
 
   cout << "The final message: " << message << "\n";
 
@@ -176,19 +170,19 @@ void people_func(ThreePeople p) {
   vector<string> pairs;
 
   // Remote call metadata
-  pairs.push_back(jsonify_pair("method", "people_func", "string"));
-  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+  pairs.push_back(serialize_pair("method", "people_func", "string"));
+  pairs.push_back(serialize_pair("param_count", "1", "int"));
 
   // Remote call params
   vector<string> param_objects;
-  param_objects.push_back(handle_ThreePeople(p));
-  cout << "object for " << "p" << ": " << handle_ThreePeople(p) << "\n";
+  param_objects.push_back(serialize_ThreePeople(p));
+  cout << "object for " << "p" << ": " << serialize_ThreePeople(p) << "\n";
 
-  string params = jsonify_array(param_objects);
-  pairs.push_back(jsonify_pair("params", params, "array"));
+  string params = serialize_array(param_objects);
+  pairs.push_back(serialize_pair("params", params, "array"));
 
   // Finalize the message
-  message = jsonify_object(pairs);
+  message = serialize_object(pairs);
 
   cout << "The final message: " << message << "\n";
 
@@ -210,19 +204,19 @@ void people_array(Person p[]) {
   vector<string> pairs;
 
   // Remote call metadata
-  pairs.push_back(jsonify_pair("method", "people_array", "string"));
-  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+  pairs.push_back(serialize_pair("method", "people_array", "string"));
+  pairs.push_back(serialize_pair("param_count", "1", "int"));
 
   // Remote call params
   vector<string> param_objects;
-  param_objects.push_back(handle_people_array(p));
-  cout << "object for " << "p" << ": " << handle_people_array(p) << "\n";
+  param_objects.push_back(serialize_people_array(p));
+  cout << "object for " << "p" << ": " << serialize_people_array(p) << "\n";
 
-  string params = jsonify_array(param_objects);
-  pairs.push_back(jsonify_pair("params", params, "array"));
+  string params = serialize_array(param_objects);
+  pairs.push_back(serialize_pair("params", params, "array"));
 
   // Finalize the message
-  message = jsonify_object(pairs);
+  message = serialize_object(pairs);
 
   cout << "The final message: " << message << "\n";
 
@@ -288,19 +282,19 @@ int sum(int x[3]) {
   vector<string> pairs;
 
   // Remote call metadata
-  pairs.push_back(jsonify_pair("method", "sum", "string"));
-  pairs.push_back(jsonify_pair("param_count", "1", "int"));
+  pairs.push_back(serialize_pair("method", "sum", "string"));
+  pairs.push_back(serialize_pair("param_count", "1", "int"));
 
   // Remote call params
   vector<string> param_objects;
-  param_objects.push_back(handle_int_3(x));
-  cout << "object for " << "x" << ": " << handle_int_3(x) << "\n";
+  param_objects.push_back(serialize_int_3(x));
+  cout << "object for " << "x" << ": " << serialize_int_3(x) << "\n";
 
-  string params = jsonify_array(param_objects);
-  pairs.push_back(jsonify_pair("params", params, "array"));
+  string params = serialize_array(param_objects);
+  pairs.push_back(serialize_pair("params", params, "array"));
 
   // Finalize the message
-  message = jsonify_object(pairs);
+  message = serialize_object(pairs);
 
   cout << "The final message: " << message << "\n";
 
@@ -337,22 +331,22 @@ int add(int x, int y) {
   vector<string> pairs;
 
   // Remote call metadata
-  pairs.push_back(jsonify_pair("method", "add", "string"));
-  pairs.push_back(jsonify_pair("param_count", "2", "int"));
+  pairs.push_back(serialize_pair("method", "add", "string"));
+  pairs.push_back(serialize_pair("param_count", "2", "int"));
 
   // Remote call params
   vector<string> param_objects;
-  param_objects.push_back(handle_int(x));
-  cout << "object for " << "x" << ": " << handle_int(x) << "\n";
+  param_objects.push_back(serialize_int(x));
+  cout << "object for " << "x" << ": " << serialize_int(x) << "\n";
   
-  param_objects.push_back(handle_int(y));
-  cout << "object for " << "y" << ": " << handle_int(y) << "\n";
+  param_objects.push_back(serialize_int(y));
+  cout << "object for " << "y" << ": " << serialize_int(y) << "\n";
 
-  string params = jsonify_array(param_objects);
-  pairs.push_back(jsonify_pair("params", params, "array"));
+  string params = serialize_array(param_objects);
+  pairs.push_back(serialize_pair("params", params, "array"));
 
   // Finalize the message
-  message = jsonify_object(pairs);
+  message = serialize_object(pairs);
 
   cout << "The final message: " << message.c_str() << "\n";
 
