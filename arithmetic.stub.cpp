@@ -97,8 +97,6 @@ ThreePeople handle_ThreePeople(string ThreePeople_obj);
 //    code above).
 //
 // ======================================================================
-  
-
 
 void __add(string json, int param_count, string params) {
   int x = handle_int(consume_object(params));
@@ -121,7 +119,7 @@ void __add(string json, int param_count, string params) {
 
 void __sum(string json, int param_count, string params) {
   int *x = handle_int_3(consume_object(params));
-
+  cout << *x << endl;
   //
   // Time to actually call the function 
   //
@@ -160,9 +158,9 @@ void __person_func(string json, int param_count, string params) {
 void __people_func(string json, int param_count, string params) {
   ThreePeople people = handle_ThreePeople(consume_object(params));
 
-  cout << "P1 firstname is " <<  people.p1.firstname << endl;
-  cout << "P2 firstname is " <<  people.p2.firstname << endl;
-  cout << "P3 firstname is " <<  people.p3.firstname << endl;
+  cout << "P1 " << people.p1.firstname << ", 1st favorite number: " <<  people.p1.favorite_numbers[0] << ", " << people.p1.favorite_numbers[1] << ", " << people.p1.favorite_numbers[2] << endl;
+  cout << "P2 " << people.p2.firstname << ", 2nd favorite number: " <<  people.p2.favorite_numbers[0] << ", " << people.p2.favorite_numbers[1] << ", " << people.p2.favorite_numbers[2] << endl;
+  cout << "P3 " << people.p3.firstname << ", 3rd favorite number: " <<  people.p3.favorite_numbers[0] << ", " << people.p3.favorite_numbers[1] << ", " << people.p3.favorite_numbers[2] << endl;
   //
   // Time to actually call the function 
   //
@@ -181,7 +179,8 @@ void __people_func(string json, int param_count, string params) {
 
 void __people_array(string json, int param_count, string params) {
   Person *people = handle_people_3(consume_object(params));
-  
+  cout << people[0].firstname << endl;
+
   //
   // Time to actually call the function 
   //
@@ -343,6 +342,7 @@ float extract_float(string json, string key) {
 }
 
 int extract_int(string json, string key) {
+  cout << "searching: " << json << endl;
   regex pair_regex("\"(" + key + ")\":(-?[0-9]+)[,}\\]]"); // "(my_key)":(-?[0-9]+)[,}\]]
   smatch pair_matches;
   
@@ -425,8 +425,13 @@ string consume_object(string &json) {
   // check for empty array
   if (obj_start == json.npos) { return ""; }
 
-  size_t obj_len = stoi(json.substr(0, obj_start));
-  return json.substr(obj_start, obj_len);
+  size_t obj_len = stoi(json.substr(json[0] == ',' ? 1 : 0, obj_start));
+
+  // consume the object
+  string obj = json.substr(obj_start, obj_len);
+  json = json.substr(obj_start + obj_len, json.npos);
+  
+  return obj;
 }
 
 int* handle_int_3(string int_3_obj) {
@@ -456,11 +461,15 @@ Person handle_person(string person_obj) {
   Person *my_person = new struct Person;
   string value_obj = extract_object(person_obj, "value");
 
-  my_person->firstname = handle_string(extract_string(extract_object(value_obj, "firstname"), "value"));
-  my_person->lastname = handle_string(extract_string(extract_object(value_obj, "lastname"), "value"));
+  my_person->firstname = handle_string(extract_object(value_obj, "firstname"));
+  my_person->lastname = handle_string(extract_object(value_obj, "lastname"));
   my_person->age = handle_int(extract_object(value_obj, "age"));
+  
+  // can't assign arrays directly, so need to loop through to assign each value
+  int *favorite_numbers = handle_int_3(extract_object(value_obj, "favorite_numbers"));
+  for (int i = 0; i < 3; i++) { my_person->favorite_numbers[i] = favorite_numbers[i]; }
  
-  return *(my_person);
+  return *my_person;
 }
 
 ThreePeople handle_ThreePeople(string ThreePeople_obj) {
@@ -478,12 +487,12 @@ int handle_int(string int_object) {
   return extract_int(int_object, "value");
 }
 
-string handle_string(string s_string) {
-  return s_string;
+string handle_string(string string_object) {
+  return extract_string(string_object, "value");
 }
 
-float handle_float(string float_string) {
-  return stof(float_string);
+float handle_float(string float_object) {
+  return extract_float(float_object, "value");
 }
 
 

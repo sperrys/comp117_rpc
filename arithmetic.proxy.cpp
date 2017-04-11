@@ -176,6 +176,8 @@ string handle_Person(Person my_Person) {
   elements.push_back(jsonify_pair("firstname", handle_string(my_Person.firstname), "object"));
   elements.push_back(jsonify_pair("lastname", handle_string(my_Person.lastname), "object"));
   elements.push_back(jsonify_pair("age", handle_int(my_Person.age), "object"));
+  elements.push_back(jsonify_pair("favorite_numbers", handle_int_3(my_Person.favorite_numbers), "object"));
+
   stringstream value;
   value << jsonify_object(elements);
 
