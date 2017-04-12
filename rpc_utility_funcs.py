@@ -104,6 +104,7 @@ def generate_deserial_imp(idl_types):
 	imp_content = "//                  deserilization.cpp\n//\n//     This is generated header file for the deserialization \n\n\n#include \"generic_deserialization.h\"\n#include \"deserialization.h\"\n\n\n"
 	for name, sig in idl_types:
 		imp_content += deserializer.construct_decl(name, sig, False) + deserializer.construct_body(name, sig)
+	print imp_content
 	return imp_content
 
 # Function that takes the idl type and 
