@@ -19,7 +19,7 @@ import stub
 
 
 # ---------------------------------------------------------------- #
-#							UTLITY FUNCTIONS 					   #
+#														UTLITY FUNCTIONS	 					   				 #
 # ---------------------------------------------------------------- #
 
 
@@ -140,5 +140,3 @@ def generate_funcs(idl_funcs, stub_type):
 	elif stub_type == "STUB":
 		funcs += generate_stub_funcs(idl_funcs);
 	return funcs 
-
-

@@ -65,5 +65,3 @@ s_funcs = utils.generate_funcs(idl_funcs, "STUB")
 # the respective file
 proxy.write(p_funcs)
 stub.write(s_funcs)
-
-

@@ -43,7 +43,7 @@ def construct_body(name, sig):
 		body += handle_array(name, sig)
 	return body 
 
-#Function that handles the serialization of an array type 
+# Function that handles the serialization of an array type 
 # TODO make this prettier/make sense!!
 def handle_array(name, sig):
 	member_type = utils.add_serialize(sig["member_type"])
@@ -74,6 +74,6 @@ def handle_struct(name, sig):
 		body += mem_format
 			
 	body += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}}\n\n"""
-  	sbody = body.format(name=name)
+	sbody = body.format(name=name)
 	
 	return sbody

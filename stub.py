@@ -42,15 +42,15 @@ def construct_func_body(name, sig):
 	body += "); \n\n"
 
 	body+= "      // Compose the remote call\n"
-  	body+= "      vector<string> pairs;\n"
-  	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}(result), "object"));\n"""
-  	body+= """      string message = serialize_object(pairs);\n\n """
+	body+= "      vector<string> pairs;\n"
+	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
+	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
+	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}(result), "object"));\n"""
+	body+= """      string message = serialize_object(pairs);\n\n """
 
-  	body += """     // Send the response to the client\n""" 
-  	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
-  	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
+	body += """     // Send the response to the client\n""" 
+	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
+	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
 
 	f = body.format(name=name, rtypehandle=utils.add_serialize(sig["return_type"]))
 	return f + "}\n"

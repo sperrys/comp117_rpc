@@ -28,9 +28,9 @@ def add_deserialize(name):
 def add_prepend(name):
 	return "__" + name
 def remove_prepend(name):
-	return name.replace("_","")
+	return name.replace("_","") # should be: name[2:]
 def has_prepend(name):
-	return (name[0] == "_")
+	return (name[0] == "_") # should be: name[0:2] == "__"
 def strip_type(name):
 	return re.sub(r'\[.+\]', "", name)
 def strip_num_elements(name):
@@ -98,6 +98,3 @@ def gen_head_comments(filebase, extension, stub_type):
 	comments +=  c.COMMENT + " --------------------------------------------------------------" + c.NEWLINE
 
 	return comments
-
-
-
