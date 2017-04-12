@@ -95,6 +95,8 @@ def generate_deserial_header(idl_types):
 	header_content = "//                  deserilization.h\n//\n//     This is generated header file for the serialization \n\n\n"
 	for name, sig in idl_types:
 		header_content += deserializer.construct_decl(name, sig, True)
+
+	print header_content
 	return header_content
 
 # Function that takes the idl types, 
