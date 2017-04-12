@@ -4,7 +4,7 @@
 #  rpc_utility_funcs.py 
 #  written by: Aaron Bowen, Spencer Perry
 #
-#  Purpose: Helpful functions written to add in
+#  Purpose: Helpful functions written to aid in
 #  the generation of proxy and stub code for rpc 
 #
 
@@ -83,7 +83,7 @@ def generate_serial_header(idl_types):
 # generates the corresponding 
 # serialization implementation content and returns it
 def generate_serial_imp(idl_types):
-	imp_content = ""
+	imp_content = "//                  serilization.cpp\n//\n//     This is generated implementation file for the serialization \n\n\n#include \"generic_serialization.h\"\n#include \"serialization.h\"\n\n\n"
 	for name, sig in idl_types:
 		imp_content += serializer.construct_decl(name, sig, False) + serializer.construct_body(name, sig)
 	return imp_content
@@ -101,7 +101,7 @@ def generate_deserial_header(idl_types):
 # generates the corresponding 
 # deserialization implementation content and returns it
 def generate_deserial_imp(idl_types):
-	imp_content = ""
+	imp_content = "//                  deserilization.cpp\n//\n//     This is generated header file for the deserialization \n\n\n#include \"generic_deserialization.h\"\n#include \"deserialization.h\"\n\n\n"
 	for name, sig in idl_types:
 		imp_content += deserializer.construct_decl(name, sig, False) + deserializer.construct_body(name, sig)
 	return imp_content
@@ -140,86 +140,5 @@ def generate_funcs(idl_funcs, stub_type):
 	elif stub_type == "STUB":
 		funcs += generate_stub_funcs(idl_funcs);
 	return funcs 
-
-
-
-
-
-
-# 
-#		WRITTEN FUNCS, BUT NOT CURRENTLY USED
-# 
-
-
-# Function that takes the json and an array 
-# parses the json and stores a string of the func sig
-# in the provided array
-# Returns: The array of string func sigs
-
-
-
-
-
-# generated functions that aren't dependenet on idl
-# Returns: string of generated code for basic functions
-# 
-# Todo: Proxy: add functions like jsonifyies and add_size_to_message
-# 		Stub: add functions like get_json_size and get_json 
-def generate_util_funcs(stub_type):
-	basic_handle_funcs = ""
-
-	for type_name in BASIC_TYPES:
-		basic_handle_funcs += generate_handle(type_name, stub_type)
-
-	return basic_handle_funcs
-
-# generates functions that handle basic types
-def generate_handle(type_name, stub_type):
-	func = ""
-
-	if stub_type == "STUB":
-		func += generate_hand_func_decl(type_name, stub_type)
-		func += generate_hand_func_body(type_name, stub_type)
-
-	elif stub_type == "PROXY":
-		func += generate_hand_func_decl(type_name, stub_type)
-		func += generate_hand_func_body(type_name, stub_type)
-
-	return func 
-		
-
-# function that generates the function declaration part of the handle functions
-# ie. string handle_int(int my_int) {
-# doesn't generate body of the function 
-def generate_hand_func_decl(type_name, stub_type):
-	decl = ""
-
-	if stub_type == "PROXY": 
-		decl = "string" + SPACE + add_handle(type_name) + "(" + type_name
-		decl += SPACE + add_my(type_name) + ")" + SPACE + "{" + NEWLINE
-
-	elif stub_type == "STUB":
-		return ""
-
-	return decl 
-
-# STILL NEED TO FINISH FOR STUB
-# function that generates the function body for handle functions
-# might add a general create_func that takes an array of function lines
-# and adds apropriate indents and newlines
-def generate_hand_func_body(type_name, stub_type):
-	body = ""
-	if stub_type == "PROXY": 
-		body += SPACE * INDENT + "vector<string>param_pairs" + SEMICOLON + NEWLINE + NEWLINE
-		body += SPACE * INDENT + COMMENT + "value to string conversion" + NEWLINE
-		body += SPACE * INDENT + "string type = " + add_quotes(type_name) + SEMICOLON + NEWLINE
-		body += SPACE * INDENT + "stringstream value" + SEMICOLON + NEWLINE
-		body += SPACE * INDENT + "value << " + add_my(type_name) + NEWLINE + NEWLINE
-		body += SPACE * INDENT + COMMENT + "compose the inner description object" + NEWLINE
-
-		return body + NEWLINE + "}" + NEWLINE
-
-	elif stub_type == "STUB":
-		return ""
 
 

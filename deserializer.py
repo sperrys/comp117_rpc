@@ -65,7 +65,7 @@ def handle_struct(name, sig):
 			mem_string +="   for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n"
 			f = mem_string.format(mtype_handle=mtype_handle, mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype))
 			
-	body += "\n    return *" +utils.add_my(name)+ "\n}\n"
+	body += "\n    return *" +utils.add_my(name)+ "\n}\n \n"
 	
 	return body 
 
@@ -79,9 +79,9 @@ def handle_array(name, sig):
 	mbody += "    string objs = extract_array(json, \"value\");\n\n"
 
 	mbody += "    for (int i = 0; i < {num_elements}; i++) {{\n"
-	mbody += "         {mname}[i] = "+utils.add_deserialize(name)+"(consume_object(objs));\n" 
+	mbody += "         {mname}[i] = "+utils.add_deserialize(utils.strip_type(utils.remove_prepend(name)))+"(consume_object(objs));\n" 
 	mbody += "    }}\n\n"
-	mbody += "    return {mname} \n }}" 
+	mbody += "    return {mname}; \n}} \n" 
 
 	f = mbody.format(mname=mname, array_type=utils.strip_type(mtype), pname=utils.remove_prepend(name), num_elements=num_values)
 	

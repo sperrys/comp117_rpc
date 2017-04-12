@@ -51,7 +51,7 @@ def handle_array(name, sig):
 	mname = utils.add_my(name)
 
 	body = """    vector<string> param_pairs; \n \n    // value to string conversion \n    string type = "{name}"; \n    vector <string> elements; \n \n"""
-	mbody = body.format(name=name)
+	mbody = body.format(name=utils.remove_prepend(name))
 
 	mem_string = """    for (int i = 0; i < {iterations}; i++) {{ \n         elements.push_back({mtype_handle}({mname}[i]));\n    }}\n    stringstream value;\n    value << serialize_array(elements); \n"""
 	mem_format = mem_string.format(iterations=str(num_values-1), mname=mname, mtype_handle=member_type, mname2=mname)			
