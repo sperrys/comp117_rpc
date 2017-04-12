@@ -1,84 +1,33 @@
+// 
+//	 generic_deserialization.cpp 
+// 
+//   Aaron Bowen, Spencer Perry
+// 
+//   This is the implementation file for all of the generic deserialization 
+//   functions that aren't dependent on the idl. 
+
 
 using namespace std;
-#include <string>
 
-#include "rpcstubhelper.h"
-#include "rpcproxyhelper.h"
-#include "utility.h"
-
-#include <cstdio>
-#include <cstring>
 #include <string>
-#include "c150debug.h"
 #include <regex>
-#include <typeinfo>
 
-using namespace C150NETWORK;  // for all the comp150 utilities 
+#include "generic_deserialization.h"
 
-//
-// TCP message utility functions
-//
+int deserialize_int(string int_object) {
+  return extract_int(int_object, "value");
+}
 
-size_t read_message_size(C150StreamSocket *socket) {
-  char buffer[30];
-  char *buff_ptr = buffer;  // next char to read
-  ssize_t readlen;          // amount of data read from socket
+string deserialize_string(string string_object) {
+  return extract_string(string_object, "value");
+}
 
-  for (unsigned int i = 0; i < sizeof(buffer); i++) {
-    readlen = socket->read(buff_ptr, 1);  // read a byte
+float deserialize_float(string float_object) {
+  return extract_float(float_object, "value");
+}
 
-    if (*buff_ptr == '{') { return stoi(string(buffer)); }
-    buff_ptr++;
-    
-    // error handling
-    if (readlen == 0) {
-      c150debug->printf(C150RPCDEBUG, "Read zero length message, checking EOF");
-      if (socket-> eof()) {
-        c150debug->printf(C150RPCDEBUG, "EOF signaled on input");
-      } else {
-        throw C150Exception("Unexpected zero length read without EOF");
-      }
-    }
-  }
-
-  // catchall exception
-  throw C150Exception("Finding JSON size failed.");
-} 
-
-string read_message(C150StreamSocket *socket, size_t message_size) {
-  char buffer[message_size];
-  char *buff_ptr = buffer;  // next char to read
-  ssize_t readlen;          // amount of data read from socket
-  bool read_null;
-
-  for (unsigned int i = 0; i < sizeof(buffer); i++) {
-    readlen = socket->read(buff_ptr, 1);  // read a byte
-
-    if (readlen == 0) {
-      break;
-    } else if (*buff_ptr++ == '\0') {
-      read_null = true;
-      break;
-    }
-  }
-
-  // error handling 
-  if (readlen == 0) {
-    c150debug->printf(C150RPCDEBUG,"Read zero length message, checking EOF");
-    if (socket-> eof()) {
-      c150debug->printf(C150RPCDEBUG,"EOF signaled on input");
-    } else {
-      throw C150Exception("Unexpected zero length read without EOF");
-    }
-  } else if (!read_null) { // If we didn't get a null, input message was poorly formatted
-    throw C150Exception("Method name not null terminated or too long");
-  }
-
-  // buffer to string
-  string message(buffer);
-  message = to_string(message_size) + "{" + message; // manually reformat message
-
-  return message;
+bool deserialize_bool(string bool_object) {
+  return extract_bool(bool_object, "value");
 }
 
 //
@@ -186,4 +135,3 @@ string extract_string(string json, string key) {
   
   return pair_matches[2];
 }
-

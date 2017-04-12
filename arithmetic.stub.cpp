@@ -35,40 +35,25 @@
 //
 // --------------------------------------------------------------
 
-// IMPORTANT! WE INCLUDE THE IDL FILE AS IT DEFINES THE INTERFACES
-// TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
-// CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
-
 using namespace std;
 #include <string>
 
+// idl interfaces
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
-#include "rpcstubhelper.h"
-#include "utility.h"
+// utility interfaces
+#include "generic_deserialization.h"
+#include "deserialization.h"
+#include "generic_serialization.h"
+#include "serialization.h"
+#include "tcp.h"
 
-#include <cstdio>
-#include <cstring>
-#include <string>
+// c150 interface
+#include "rpcstubhelper.h"
 #include "c150debug.h"
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
-
-// ======================================================================
-//
-//                        COMMON SUPPORT FUNCTIONS
-//
-// ======================================================================
-
-// STRING TO CPP FUNCS
-Person handle_person(string person_obj);
-Person* handle_people_3(string json);
-ThreePeople handle_ThreePeople(string ThreePeople_obj);
-float handle_float(string json);
-int *handle_int_3(string json);
-int handle_int(string json);
-string handle_string(string json);
 
 // ======================================================================
 //                             STUBS
@@ -85,26 +70,28 @@ string handle_string(string json);
 // ======================================================================
 
 void __add(string json, int param_count, string params) {
-  int x = handle_int(consume_object(params));
-  int y = handle_int(consume_object(params));
+  int x = deserialize_int(consume_object(params));
+  int y = deserialize_int(consume_object(params));
   //
   // Time to actually call the function 
   //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking add()");
-  add(x, y);
+  int result = add(x, y);
 
-  //
+  // Compose the remote call
+  vector<string> pairs;
+  pairs.push_back(serialize_pair("method", "sum", "string"));
+  pairs.push_back(serialize_pair("error", "false", "bool"));
+  pairs.push_back(serialize_pair("result", serialize_int(result), "object"));
+  string message = serialize_object(pairs);
+
   // Send the response to the client
-  //
-  // If func1 returned something other than void, this is
-  // where we'd send the return value back.
-  //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
-  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+  RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);
 }
 
 void __sum(string json, int param_count, string params) {
-  int *x = handle_int_3(consume_object(params));
+  int *x = deserialize_int_3(consume_object(params));
   cout << *x << endl;
   //
   // Time to actually call the function 
@@ -123,7 +110,7 @@ void __sum(string json, int param_count, string params) {
 }
 
 void __person_func(string json, int param_count, string params) {
-  Person my_person = handle_person(consume_object(params));
+  Person my_person = deserialize_person(consume_object(params));
 
   //
   // Time to actually call the function 
@@ -142,7 +129,7 @@ void __person_func(string json, int param_count, string params) {
 }
 
 void __people_func(string json, int param_count, string params) {
-  ThreePeople people = handle_ThreePeople(consume_object(params));
+  ThreePeople people = deserialize_ThreePeople(consume_object(params));
 
   cout << people.p1.firstname << "'s favorite numbers: " <<  people.p1.favorite_numbers[0] << ", " << people.p1.favorite_numbers[1] << ", " << people.p1.favorite_numbers[2] << endl;
   cout << people.p2.firstname << "'s favorite numbers: " <<  people.p2.favorite_numbers[0] << ", " << people.p2.favorite_numbers[1] << ", " << people.p2.favorite_numbers[2] << endl;
@@ -164,7 +151,7 @@ void __people_func(string json, int param_count, string params) {
 }
 
 void __people_array(string json, int param_count, string params) {
-  Person *people = handle_people_3(consume_object(params));
+  Person *people = deserialize_people_3(consume_object(params));
   cout << people[0].firstname << endl;
 
   //
@@ -244,66 +231,6 @@ void dispatchFunction() {
   }
 }
 
-int* handle_int_3(string int_3_obj) {
-  int *my_int = new int[3];
-  string ints = extract_array(int_3_obj, "value");
-
-  for (int i = 0; i < 3; i++) {
-    my_int[i] = handle_int(consume_object(ints));
-  }
-
-  return my_int;
-}
-
-
-Person* handle_people_3(string people_3_obj) {
-  Person *my_people = new Person[3];
-  string people = extract_array(people_3_obj, "value");
-
-  for (int i = 0; i < 3; i++) {
-    my_people[i] = handle_person(consume_object(people));
-  }
-
-  return my_people;
-}
-
-Person handle_person(string person_obj) {
-  Person *my_person = new struct Person;
-  string value_obj = extract_object(person_obj, "value");
-
-  my_person->firstname = handle_string(extract_object(value_obj, "firstname"));
-  my_person->lastname = handle_string(extract_object(value_obj, "lastname"));
-  my_person->age = handle_int(extract_object(value_obj, "age"));
-  
-  // can't assign arrays directly, so need to loop through to assign each value
-  int *favorite_numbers = handle_int_3(extract_object(value_obj, "favorite_numbers"));
-  for (int i = 0; i < 3; i++) { my_person->favorite_numbers[i] = favorite_numbers[i]; }
- 
-  return *my_person;
-}
-
-ThreePeople handle_ThreePeople(string ThreePeople_obj) {
-  ThreePeople* people = new struct ThreePeople;
-  string value_obj = extract_object(ThreePeople_obj, "value");
-
-  people->p1 = handle_person(extract_object(value_obj, "p1"));
-  people->p2 = handle_person(extract_object(value_obj, "p2"));
-  people->p3 = handle_person(extract_object(value_obj, "p3"));
-
-  return *people;
-}
-
-int handle_int(string int_object) {
-  return extract_int(int_object, "value");
-}
-
-string handle_string(string string_object) {
-  return extract_string(string_object, "value");
-}
-
-float handle_float(string float_object) {
-  return extract_float(float_object, "value");
-}
 
 
 
