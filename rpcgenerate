@@ -9,8 +9,11 @@ import sys
 import os
 import rpc_utility_funcs as utils
 
-# Check Command Line 
-filename = utils.CheckArgs(sys.argv)
+# Check command line 
+filename = utils.check_args(sys.argv)
+
+if filename is None:
+	sys.exit()
 
 # Parse declarations into a Python dictionary
 decls = json.loads(subprocess.check_output(["./idl_to_json", filename]))

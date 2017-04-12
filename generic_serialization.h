@@ -1,10 +1,10 @@
 // 
-//      generic_serialization.h 
+//       generic_serialization.h 
 //
-// 		Aaron Bowem and Spencer Perry
+// 	     Aaron Bowen and Spencer Perry
 //
-//    	This header file for all serialization that 
-//      isn't depend on the idl.
+//       This header file for all serialization that 
+//       isn't depend on the idl.
 //
 
 #include <vector>

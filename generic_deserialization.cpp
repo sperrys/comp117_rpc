@@ -15,6 +15,18 @@
 using namespace std;
 
 
+int deserialize_int(string int_object) {
+  return extract_int(int_object, "value");
+}
+
+string deserialize_string(string string_object) {
+  return extract_string(string_object, "value");
+}
+
+float deserialize_float(string float_object) {
+  return extract_float(float_object, "value");
+}
+
 //
 // JSON utility functions.
 // 

@@ -15,7 +15,6 @@ using namespace std;
 
 #include "generic_serialization.h" 
 
-
 const string VALUE_KEY = "value";
 const string TYPE_KEY = "type";
 const string STRUCT_KEY = "is_struct";

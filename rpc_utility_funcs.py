@@ -28,7 +28,7 @@ import stub
 # correctly formmated 
 # Returns: The filename provided
 
-def CheckArgs(argv):
+def check_args(argv):
 	try: 
 		#  Proper Command Line Arguements
 		if len(argv) != 2:
