@@ -33,7 +33,9 @@ using namespace std;
 #include "lotsofstuff.idl"
 
 // utility interfaces
+#include "generic_deserialization.h"
 #include "deserialization.h"
+#include "generic_serialization.h"
 #include "serialization.h"
 #include "tcp.h"
 

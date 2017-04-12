@@ -6,6 +6,7 @@ using namespace std;
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
+#include "generic_serialization.h"
 #include "serialization.h"
 
 const string VALUE_KEY = "value";

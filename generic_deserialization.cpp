@@ -7,13 +7,12 @@
 //   functions that aren't dependent on the idl. 
 
 
+using namespace std;
+
 #include <string>
 #include <regex>
 
 #include "generic_deserialization.h"
-
-using namespace std;
-
 
 int deserialize_int(string int_object) {
   return extract_int(int_object, "value");

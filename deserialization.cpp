@@ -6,6 +6,7 @@ using namespace std;
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
+#include "generic_deserialization.h"
 #include "deserialization.h"
 
 int* deserialize_int_3(string int_3_obj) {
