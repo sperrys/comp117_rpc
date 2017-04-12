@@ -66,7 +66,7 @@ def construct_bad_function():
 # This function constructs the stub's dispatch function 
 def construct_dispatch_function(idl_funcs):
 	body ="" 
-	decl = "\nvoid dispatch_Function() {\n"
+	decl = "\nvoid dispatchFunction() {\n"
 	body += "    // Read the Json Message in \n"
 	body += "    string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));\n\n"
 	body += "    string func_name = extract_string(json_str, \"method\");\n"

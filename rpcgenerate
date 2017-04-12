@@ -27,8 +27,8 @@ idl_funcs = decls["functions"]
 deserial_h = open("gen.deserialization.h", "w")
 serial_h = open("gen.serialization.h", "w")
 # Generate appropriate header file content
-deserial_h_content = utils.generate_deserial_header(idl_types.iteritems())
-serial_h_content = utils.generate_serial_header(idl_types.iteritems())
+deserial_h_content = utils.generate_deserial_header(idl_types.iteritems(), filename)
+serial_h_content = utils.generate_serial_header(idl_types.iteritems(), filename)
 # Write header content to files 
 deserial_h.write(deserial_h_content)
 serial_h.write(serial_h_content)
