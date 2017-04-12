@@ -44,10 +44,11 @@ def construct_body(name, sig):
 # Function that handles the serialization of a Struct Type
 def handle_struct(name, sig):
 	body = "\n    " + name + " *"+ utils.add_my(name) + " = new struct " + name + ";\n"
-	body += "    string value_obj = extract_object(json, \"value\");\n"
+	body += "    string value_obj = extract_object(json, \"value\");\n\n"
 
 	# loop through each member of the struct
 	for mem in sig["members"]:
+		f = ""
 		mname = mem["name"]
 		mtype = mem["type"]
 
@@ -60,11 +61,11 @@ def handle_struct(name, sig):
 		# if the struct member is an array
 		else:
 			mtype_handle = utils.add_deserialize(mtype)
-			mem_string = "   " + utils.strip_type(utils.remove_prepend(mtype)) + " *" + mname + " = "
-			mem_string +="{mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
-			mem_string +="   for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n"
+			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " *" + mname + " = "
+			mem_string +=" {mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
+			mem_string +="    for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n\n"
 			f = mem_string.format(mtype_handle=mtype_handle, mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype))
-			
+			body +=f 
 	body += "\n    return *" +utils.add_my(name)+ "\n}\n \n"
 	
 	return body 
@@ -75,7 +76,7 @@ def handle_array(name, sig):
 	mtype = sig["member_type"]
 	mname = utils.add_my(utils.strip_type(mtype))
 
-	mbody =  "    {array_type} *{mname}= new {pname};\n"
+	mbody =  "    {array_type} *{mname} = new {pname};\n"
 	mbody += "    string objs = extract_array(json, \"value\");\n\n"
 
 	mbody += "    for (int i = 0; i < {num_elements}; i++) {{\n"
@@ -83,7 +84,9 @@ def handle_array(name, sig):
 	mbody += "    }}\n\n"
 	mbody += "    return {mname}; \n}} \n" 
 
-	f = mbody.format(mname=mname, array_type=utils.strip_type(mtype), pname=utils.remove_prepend(name), num_elements=num_values)
+	#if(utils.has_prepend mtype):
+
+	f = mbody.format(mname=mname, array_type=utils.strip_type(utils.remove_prepend(mtype)), pname=utils.remove_prepend(name), num_elements=num_values)
 	
 	return f 
 

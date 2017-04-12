@@ -34,7 +34,8 @@ def has_prepend(name):
 def strip_type(name):
 	return re.sub(r'\[.+\]', "", name)
 def strip_num_elements(name):
-	return (re.findall(r'\[(.*?)\]', name)[-1])
+	name = str(name)
+	return (re.findall(r'\[(.*?)\]', name))
 
 
 
