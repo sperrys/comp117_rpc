@@ -24,7 +24,7 @@ def construct_decl(name, sig, header):
 	if (sig["type_of_type"] == "builtin"):
 		return "" 
 	if sig["type_of_type"] == "array":
-		decl += utils.strip_type(utils.remove_prepend(sig["member_type"])) + " *" 
+		decl += utils.strip_type(utils.remove_prepend(sig["member_type"])) + " " + "*" * len(utils.strip_num_elements(sig["member_type"]))
 	elif sig["type_of_type"] == "struct":
 		decl += name + " "
 
@@ -72,21 +72,21 @@ def handle_struct(name, sig):
 
 # function that handles array 
 def handle_array(name, sig):
+	height = len(utils.strip_num_elements(sig["member_type"]))
 	num_values = sig["element_count"]
 	mtype = sig["member_type"]
 	mname = utils.add_my(utils.strip_type(mtype))
 
-	mbody =  "    {array_type} *{mname} = new {pname};\n"
+	mbody =  "    {array_type} {height} {mname}[{num_elements}] = new {pname} {height}[{num_elements}];\n"
 	mbody += "    string objs = extract_array(json, \"value\");\n\n"
 
 	mbody += "    for (int i = 0; i < {num_elements}; i++) {{\n"
-	mbody += "         {mname}[i] = "+utils.add_deserialize(utils.strip_type(utils.remove_prepend(name)))+"(consume_object(objs));\n" 
+	mbody += "         {mname}[i] = "+utils.add_deserialize(sig["member_type"])+"(consume_object(objs));\n" 
 	mbody += "    }}\n\n"
 	mbody += "    return {mname}; \n}} \n" 
 
-	#if(utils.has_prepend mtype):
 
-	f = mbody.format(mname=mname, array_type=utils.strip_type(utils.remove_prepend(mtype)), pname=utils.remove_prepend(name), num_elements=num_values)
+	f = mbody.format(mname=mname, array_type=utils.strip_type(utils.remove_prepend(mtype)), pname=utils.strip_type(utils.remove_prepend(name)), num_elements=num_values, height=height * "*")
 	
 	return f 
 
