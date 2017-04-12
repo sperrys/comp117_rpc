@@ -70,7 +70,7 @@ def handle_struct(name, sig):
 		mname = mem["name"]
 		mtype = mem["type"]
 		mtype_handle = utils.add_my(mtype)
-		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object");\n"""
+		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object"));\n"""
 		mem_format = mem_string.format(mname=mname, mtype_handle=utils.replace_brackets(mtype_handle)[:-1], my_name=name, mname2=mname)		
 		body += mem_format
 			

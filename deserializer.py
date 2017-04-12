@@ -84,7 +84,7 @@ def handle_array(name, sig):
 
 	mname = utils.add_my(utils.strip_type(mtype))
 
-	mbody =  "    {array_type} {height} {mname}[{num_elements}] = new {pname} {height}[{num_elements}];\n"
+	mbody =  "    {array_type} {height} {mname}[{num_elements}] = new {pname}{height}[{num_elements}];\n"
 	mbody += "    string objs = extract_array(json, \"value\");\n\n"
 
 	mbody += "    for (int i = 0; i < {num_elements}; i++) {{\n"
