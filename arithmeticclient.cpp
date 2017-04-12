@@ -122,9 +122,9 @@ int main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) add
        //
-       //printf("Calling add(10,2)\n");
-       //result = add(10,2);                          // remote call (we hope!)
-       //printf("Returned from add(10,2). Result=%d\n",result);
+       printf("Calling add(10,2)\n");
+       result = add(10,2);                          // remote call (we hope!)
+       printf("Returned from add(10,2). Result=%d\n",result);
 
        // 
        // Call (possibly remote) sum
@@ -147,12 +147,12 @@ int main(int argc, char *argv[]) {
        //
        // printf("Calling people_func(three)\n");
 
-       struct Person p_1 = { "Jack", "Daniels", 59, { 1, 2, 3 } };
-       struct Person p_2 = { "Henry", "Ford", 32, { 4, 5, 6 } };
-       struct Person p_3 = { "Ben", "Wallibur", 19, { 7, 8, 9 } };
+       // struct Person p_1 = { "Jack", "Daniels", 59, { 1, 2, 3 } };
+       // struct Person p_2 = { "Henry", "Ford", 32, { 4, 5, 6 } };
+       // struct Person p_3 = { "Ben", "Wallibur", 19, { 7, 8, 9 } };
 
-       struct ThreePeople three = { p_1, p_2, p_3 };
-       people_func(three);        // remote call (we hope!)
+       // struct ThreePeople three = { p_1, p_2, p_3 };
+       // people_func(three);        // remote call (we hope!)
        // printf("Returned from people_func(three). Result=%s\n", person_result.firstname.c_str());
 
        // printf("Calling people_array(people_arr)\n");
@@ -170,23 +170,23 @@ int main(int argc, char *argv[]) {
        // Call (possibly remote) subtract
        //
 
-       printf("Calling subtract(10,2)\n");
+       // printf("Calling subtract(10,2)\n");
        // result = subtract(10,2);                          // remote call (we hope!)
-       printf("Returned from subtract(10,2). Result=%d\n",result);
+       // printf("Returned from subtract(10,2). Result=%d\n",result);
 
        // 
        // Call (possibly remote) multiply
        //
-       printf("Calling multiply(10,2)\n");
+       // printf("Calling multiply(10,2)\n");
        // result = multiply(10,2);                          // remote call (we hope!)
-       printf("Returned from multiply(10,2). Result=%d\n",result);
+       // printf("Returned from multiply(10,2). Result=%d\n",result);
 
        // 
        // Call (possibly remote) divide
        //
-       printf("Calling divide(10,2)\n");
+       // printf("Calling divide(10,2)\n");
        // result = divide(10,2);                          // remote call (we hope!)
-       printf("Returned from divide(10,2). Result=%d\n",result);
+       // printf("Returned from divide(10,2). Result=%d\n",result);
 
 
      }

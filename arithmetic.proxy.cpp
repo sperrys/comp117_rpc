@@ -28,12 +28,17 @@
 using namespace std;
 #include <string>
 
+// idl interfaces
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
-#include "rpcproxyhelper.h"
-#include "utility.h"
+// utility interfaces
+#include "deserialization.h"
+#include "serialization.h"
+#include "tcp.h"
 
+// c150 interface
+#include "rpcproxyhelper.h"
 #include "c150debug.h"
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
@@ -42,93 +47,6 @@ const string VALUE_KEY = "value";
 const string TYPE_KEY = "type";
 const string STRUCT_KEY = "is_struct";
 const string ARRAY_KEY = "is_array";
-
-
-string serialize_int_3(int my_int_3[3]) {
-  vector<string> param_pairs;
-
-  // value to string conversion
-  string type = "int[3]";
-  vector<string> elements;
-  for (int i = 0; i < 3; i++) {
-    elements.push_back(serialize_int(my_int_3[i]));
-  }
-  stringstream value;
-  value << serialize_array(elements);
-
-  // compose the inner description object
-  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));
-  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "array"));
-
-  return serialize_object(param_pairs);
-}
-
-string serialize_Person(Person my_Person) {
-  vector<string> param_pairs;
-
-  // value to string conversion
-  string type = "Person";
-  vector<string> elements;
-  elements.push_back(serialize_pair("firstname", serialize_string(my_Person.firstname), "object"));
-  elements.push_back(serialize_pair("lastname", serialize_string(my_Person.lastname), "object"));
-  elements.push_back(serialize_pair("age", serialize_int(my_Person.age), "object"));
-  elements.push_back(serialize_pair("favorite_numbers", serialize_int_3(my_Person.favorite_numbers), "object"));
-
-  stringstream value;
-  value << serialize_object(elements);
-
-  // compose the inner description object
-  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));
-  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));
-
-  return serialize_object(param_pairs);
-}
-
-string serialize_people_array(Person p[3]) {
-  vector<string> param_pairs;
-
-  // value to string conversion
-  string type = "p[3]";
-  vector<string> elements;
-  for (int i = 0; i < 3; i++) {
-    elements.push_back(serialize_Person(p[i]));
-  }
-  stringstream value;
-  value << serialize_array(elements);
-
-  // compose the inner description object
-  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
-  param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));
-  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "array"));
-
-  return serialize_object(param_pairs);
-}
-
-string serialize_ThreePeople(ThreePeople my_ThreePeople) {
-  vector<string> param_pairs;
-
-  // value to string conversion
-  string type = "ThreePeople";
-  vector<string> elements;
-  elements.push_back(serialize_pair("p1", serialize_Person(my_ThreePeople.p1), "object"));
-  elements.push_back(serialize_pair("p2", serialize_Person(my_ThreePeople.p2), "object"));
-  elements.push_back(serialize_pair("p3", serialize_Person(my_ThreePeople.p3), "object"));
-  stringstream value;
-  value << serialize_object(elements);
-
-  // compose the inner description object
-  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
-  param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));
-  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
-  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));
-
-  return serialize_object(param_pairs);
-}
 
 void person_func(Person p) {
   // Compose the remote call
@@ -233,50 +151,6 @@ void people_array(Person p[]) {
 }
 
 int sum(int x[3]) {
-  //  {
-  //    method_name: "sum",
-  //    param_count: 1,
-  //    params: [
-  //      {
-  //        type: "int[3]"
-  //        is_struct: false,
-  //        is_array: true,
-  //        value: [
-  //          1: {
-  //            type: "int",
-  //            value: 14,
-  //          },
-  //          2: {
-  //            type: "int",
-  //            value: 125,
-  //          },
-  //          3: {
-  //            type: "int",
-  //            value: 2,
-  //          }
-  //        ]
-  //      },
-  //      {
-  //        type: "Person",
-  //        value: {
-  //          age: {
-  //            type: "int",
-  //            value: 42,
-  //          },
-  //          nephew: {
-  //            type: "Person",
-  //            value: {
-  //              age: {
-  //                type: "int",
-  //                value: 3,
-  //              },
-  //              nephew: null
-  //          }
-  //        }
-  //      }
-  //    ]
-  //  }
-
   // Compose the remote call
   string message;
   vector<string> pairs;
@@ -288,7 +162,6 @@ int sum(int x[3]) {
   // Remote call params
   vector<string> param_objects;
   param_objects.push_back(serialize_int_3(x));
-  cout << "object for " << "x" << ": " << serialize_int_3(x) << "\n";
 
   string params = serialize_array(param_objects);
   pairs.push_back(serialize_pair("params", params, "array"));
@@ -296,36 +169,19 @@ int sum(int x[3]) {
   // Finalize the message
   message = serialize_object(pairs);
 
-  cout << "The final message: " << message << "\n";
-
   // Send the remote call
   c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invoked");
   RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
 
   // Read the response
-  char readBuffer[5];  // to read magic value DONE + null
   c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: sum() invocation sent, waiting for response");
+  char readBuffer[5];  // to read magic value DONE + null
   RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
 
   return 0;
 }
 
 int add(int x, int y) {
-  // {
-  //   "method_name": "add",
-  //   "param_count": 2,
-  //   "params": [
-  //     {
-  //       "value": "1",
-  //       "type": "int"
-  //     },
-  //     {
-  //       "value": "10",
-  //       "type": "int"
-  //     }
-  //   ]
-  // }
-
   // Compose the remote call
   string message;
   vector<string> pairs;
@@ -337,10 +193,8 @@ int add(int x, int y) {
   // Remote call params
   vector<string> param_objects;
   param_objects.push_back(serialize_int(x));
-  cout << "object for " << "x" << ": " << serialize_int(x) << "\n";
   
   param_objects.push_back(serialize_int(y));
-  cout << "object for " << "y" << ": " << serialize_int(y) << "\n";
 
   string params = serialize_array(param_objects);
   pairs.push_back(serialize_pair("params", params, "array"));
@@ -348,24 +202,19 @@ int add(int x, int y) {
   // Finalize the message
   message = serialize_object(pairs);
 
-  cout << "The final message: " << message.c_str() << "\n";
-
   // Send the remote call
-  c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() invoked");
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: add() invoked");
   RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null
 
   // Read the response
-  char readBuffer[5];  // to read magic value DONE + null
-  c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() invocation sent, waiting for response");
-  RPCPROXYSOCKET->read(readBuffer, sizeof(readBuffer)); // only legal response is DONE
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: add() invocation sent, waiting for response");
+  string response = read_message(RPCPROXYSOCKET, read_message_size(RPCPROXYSOCKET));
 
-  //
   // Check the response
-  //
-  if (strncmp(readBuffer,"DONE", sizeof(readBuffer)) != 0) {
-    throw C150Exception("simplefunction.proxy: add() received invalid response from the server");
+  if (extract_bool(response, "error")) {
+    throw C150Exception("arithmetic.proxy.cpp: add() encountered an error during computation");
   }
-  c150debug->printf(C150RPCDEBUG,"simplefunction.proxy.cpp: add() successful return from remote call");
+  c150debug->printf(C150RPCDEBUG,"arithmetic.proxy.cpp: add() successful return from remote call");
 
-  return 0;
+  return deserialize_int(extract_object(response, "result"));
 }

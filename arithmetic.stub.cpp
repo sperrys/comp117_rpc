@@ -35,36 +35,23 @@
 //
 // --------------------------------------------------------------
 
-// IMPORTANT! WE INCLUDE THE IDL FILE AS IT DEFINES THE INTERFACES
-// TO THE FUNCTIONS WE'RE IMPLEMENTING. THIS MAKES SURE THE
-// CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
-
 using namespace std;
 #include <string>
 
+// idl interfaces
 #include "arithmetic.idl"
 #include "lotsofstuff.idl"
 
+// utility interfaces
+#include "deserialization.h"
+#include "serialization.h"
+#include "tcp.h"
+
+// c150 interface
 #include "rpcstubhelper.h"
-#include "utility.h"
 #include "c150debug.h"
 
 using namespace C150NETWORK;  // for all the comp150 utilities 
-
-// ======================================================================
-//
-//                        COMMON SUPPORT FUNCTIONS
-//
-// ======================================================================
-
-// STRING TO CPP FUNCS
-Person deserialize_person(string person_obj);
-Person* deserialize_people_3(string json);
-ThreePeople deserialize_ThreePeople(string ThreePeople_obj);
-float deserialize_float(string json);
-int *deserialize_int_3(string json);
-int deserialize_int(string json);
-string deserialize_string(string json);
 
 // ======================================================================
 //                             STUBS
@@ -87,16 +74,18 @@ void __add(string json, int param_count, string params) {
   // Time to actually call the function 
   //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: invoking add()");
-  add(x, y);
+  int result = add(x, y);
 
-  //
+  // Compose the remote call
+  vector<string> pairs;
+  pairs.push_back(serialize_pair("method", "sum", "string"));
+  pairs.push_back(serialize_pair("error", "false", "bool"));
+  pairs.push_back(serialize_pair("result", serialize_int(result), "object"));
+  string message = serialize_object(pairs);
+
   // Send the response to the client
-  //
-  // If func1 returned something other than void, this is
-  // where we'd send the return value back.
-  //
   c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");
-  //RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);
+  RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);
 }
 
 void __sum(string json, int param_count, string params) {
@@ -240,66 +229,6 @@ void dispatchFunction() {
   }
 }
 
-int* deserialize_int_3(string int_3_obj) {
-  int *my_int = new int[3];
-  string ints = extract_array(int_3_obj, "value");
-
-  for (int i = 0; i < 3; i++) {
-    my_int[i] = deserialize_int(consume_object(ints));
-  }
-
-  return my_int;
-}
-
-
-Person* deserialize_people_3(string people_3_obj) {
-  Person *my_people = new Person[3];
-  string people = extract_array(people_3_obj, "value");
-
-  for (int i = 0; i < 3; i++) {
-    my_people[i] = deserialize_person(consume_object(people));
-  }
-
-  return my_people;
-}
-
-Person deserialize_person(string person_obj) {
-  Person *my_person = new struct Person;
-  string value_obj = extract_object(person_obj, "value");
-
-  my_person->firstname = deserialize_string(extract_object(value_obj, "firstname"));
-  my_person->lastname = deserialize_string(extract_object(value_obj, "lastname"));
-  my_person->age = deserialize_int(extract_object(value_obj, "age"));
-  
-  // can't assign arrays directly, so need to loop through to assign each value
-  int *favorite_numbers = deserialize_int_3(extract_object(value_obj, "favorite_numbers"));
-  for (int i = 0; i < 3; i++) { my_person->favorite_numbers[i] = favorite_numbers[i]; }
- 
-  return *my_person;
-}
-
-ThreePeople deserialize_ThreePeople(string ThreePeople_obj) {
-  ThreePeople* people = new struct ThreePeople;
-  string value_obj = extract_object(ThreePeople_obj, "value");
-
-  people->p1 = deserialize_person(extract_object(value_obj, "p1"));
-  people->p2 = deserialize_person(extract_object(value_obj, "p2"));
-  people->p3 = deserialize_person(extract_object(value_obj, "p3"));
-
-  return *people;
-}
-
-int deserialize_int(string int_object) {
-  return extract_int(int_object, "value");
-}
-
-string deserialize_string(string string_object) {
-  return extract_string(string_object, "value");
-}
-
-float deserialize_float(string float_object) {
-  return extract_float(float_object, "value");
-}
 
 
 
