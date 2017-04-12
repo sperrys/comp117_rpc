@@ -26,6 +26,10 @@ float deserialize_float(string float_object) {
   return extract_float(float_object, "value");
 }
 
+bool deserialize_bool(string bool_object) {
+  return extract_bool(bool_object, "value");
+}
+
 //
 // JSON utility functions.
 // 

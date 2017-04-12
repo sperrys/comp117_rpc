@@ -7,6 +7,7 @@
 //   functions that don't depend on the idl.
 //
 
+bool deserialize_bool(string json);
 float deserialize_float(string json);
 int deserialize_int(string json);
 string deserialize_string(string json);
