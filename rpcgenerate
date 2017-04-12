@@ -16,45 +16,54 @@ filename = utils.CheckArgs(sys.argv)
 decls = json.loads(subprocess.check_output(["./idl_to_json", filename]))
 
 # split up functions and types into iterable lists 
-idl_types = decls["types"].iteritems()
-idl_funcs = decls["functions"].iteritems()
+idl_types = decls["types"]
+idl_funcs = decls["functions"]
+
+
+# Open serialization and deserialization header files 
+deserial_h = open("deserializationgen.h", "w")
+serial_h = open("serializationgen.h", "w")
+# Generate appropriate header file content
+deserial_h_content = utils.generate_deserial_header(idl_types.iteritems())
+serial_h_content = utils.generate_serial_header(idl_types.iteritems())
+# Write header content to files 
+deserial_h.write(deserial_h_content)
+serial_h.write(serial_h_content)
+
+
+# Open serialization and deserialization implementation files 
+deserial_cpp = open("deserializationgen.cpp", "w")
+serial_cpp = open("serializationgen.cpp", "w")
+# Generate appropriate implementation file content
+deserial_cpp_content = utils.generate_deserial_imp(idl_types.iteritems())
+serial_cpp_content = utils.generate_serial_imp(idl_types.iteritems())
+# Write implementation content to files 
+deserial_cpp.write(deserial_cpp_content)
+serial_cpp.write(serial_cpp_content)
+
 
 # Create Proxy and Stub Files to write to 
 # (gen is temporary so we don't mix up handwritten ones)
-# ultimately filename will not have gen attached
 filebase = (os.path.splitext(filename)[0])
-
-proxy = open(filebase+".genproxy.cpp", 'w')
-stub  = open(filebase+".genstub.cpp", 'w')
-
+proxy = open(filebase+".genproxy.cpp", "w")
+stub  = open(filebase+".genstub.cpp", "w")
 # Generate File Comments and Includes for Stub And Proxy
 p_includes = utils.generate_file_head(filename, "PROXY")
 s_includes = utils.generate_file_head(filename, "STUB") 
-
 # Write generated file comments, includes, and constants to file
 proxy.write(p_includes)
 stub.write(s_includes)
 
-# Generate specific utlity functions for each idl file 
-# these functions are specific to the idl types, think handle_person()
-# deals with more complex serialization and deserialiation determined by type
-p_idl_type_funcs = utils.generate_idl_type_func(idl_types, "PROXY")
-s_idl_type_funcs = utils.generate_idl_type_func(idl_types, "STUB")
-
-# Write the generated code for the specific idl type functions to 
-# the respective file
-proxy.write(p_idl_type_funcs)
-stub.write(s_idl_type_funcs)
 
 # Generate the code for the functions specified in the IDL file
 # these functions are specific to the idl making
 # the remote calls on the client, and invoking the actual routines on the stub
-p_idl_funcs_funcs = utils.generate_idl_func_func(idl_funcs, "PROXY")
-s_idl_funcs_funcs = utils.generate_idl_func_func(idl_funcs, "STUB")
+p_funcs = utils.generate_funcs(idl_funcs.iteritems(), "PROXY")
+s_funcs = utils.generate_funcs(idl_funcs, "STUB")
 
 # Write the generated code for the specfic idl functions to
 # the respective file
-proxy.write(p_idl_funcs_funcs)
-stub.write(s_idl_funcs_funcs)
+proxy.write(p_funcs)
+stub.write(s_funcs)
 
 
