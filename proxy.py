@@ -32,11 +32,21 @@ def construct_func_body(name, sig):
 	b = body.format(param_count=num_args, name=name)
 	body = b 
 
-	for a in args: 
-		m = """    param_objects.push_back({type}, {name}));\n""";
-		f_m = m.format(type=utils.add_handle(a["type"]), name=a["name"])
+	for a in args:
+		if utils.has_prepend(a["type"]):
+			a_type =  utils.add_serialize(utils.replace_brackets(a["type"])[:-1])
+		else: 
+			a_type =  utils.add_serialize(a["type"])
+
+		m = """    param_objects.push_back({type}({name}));\n""";
+		f_m = m.format(type=a_type, name=a["name"])
 		body += f_m
 
+
+	if (utils.has_prepend(sig["return_type"])):
+		return_t = utils.add_deserialize(utils.replace_brackets(sig["return_type"])[:-1])
+	else: 
+		return_t = utils.add_deserialize(sig["return_type"])
 
 	body += """\n    string params = jsonify_array(param_objects); \n"""
 	body += """    pairs.push_back(jsonify_pair("params", params, "array")); \n\n""" 
