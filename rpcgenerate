@@ -48,8 +48,8 @@ serial_cpp.write(serial_cpp_content)
 # Create Proxy and Stub Files to write to 
 # (gen is temporary so we don't mix up handwritten ones)
 filebase = (os.path.splitext(filename)[0])
-proxy = open(filebase+".gen.proxy.cpp", "w")
-stub  = open(filebase+".gen.stub.cpp", "w")
+proxy = open("gen."+filebase+".proxy.cpp", "w")
+stub  = open("gen."+filebase+".stub.cpp", "w")
 # Generate File Comments and Includes for Stub And Proxy
 p_includes = utils.generate_file_head(filename, "PROXY")
 s_includes = utils.generate_file_head(filename, "STUB") 
