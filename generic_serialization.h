@@ -16,3 +16,4 @@ string serialize_int(int my_int);
 string serialize_object(vector<string> pairs);
 string serialize_pair(string key, string value, string json_type);
 string serialize_string(string my_string);
+string serialize_void();

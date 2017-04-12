@@ -71,8 +71,8 @@ pingstreamserver: pingstreamserver.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 #
 ########################################################################
 
-arithmeticlient: arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)
+arithmeticlient: arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)
 
 arithmeticserver: arithmetic.stub.o rpcserver.o rpcstubhelper.o arithmetic.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 	$(CPP) -o arithmeticserver rpcserver.o arithmetic.o rpcstubhelper.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR) 
