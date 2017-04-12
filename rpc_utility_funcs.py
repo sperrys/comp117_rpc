@@ -140,4 +140,5 @@ def generate_funcs(idl_funcs, stub_type):
 		funcs += generate_proxy_funcs(idl_funcs);
 	elif stub_type == "STUB":
 		funcs += generate_stub_funcs(idl_funcs);
-	return funcs 
+	return funcs
+
