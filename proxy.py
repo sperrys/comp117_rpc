@@ -25,8 +25,8 @@ def construct_func_body(name, sig):
 	args = sig["arguments"]
 	num_args = len(args)
 	body = """    // Compose the remote call\n    string message; \n    vector<string> pairs; \n\n"""
-	body += """    // Remote Call metadata \n    pairs.push_back(jsonify_pair("method", "{name}", "string"));\n"""
-	body += """    pairs.push_back(jsonify_pair("param_count", "{param_count}, "string)); \n \n"""
+	body += """    // Remote Call metadata \n    pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
+	body += """    pairs.push_back(serialize_pair("param_count", "{param_count}", "string")); \n \n"""
 	body += """    // Remote call params \n    vector<string> param_objects; \n"""
 
 	b = body.format(param_count=num_args, name=name)
@@ -48,10 +48,10 @@ def construct_func_body(name, sig):
 	else: 
 		return_t = utils.add_deserialize(sig["return_type"])
 
-	body += """\n    string params = jsonify_array(param_objects); \n"""
-	body += """    pairs.push_back(jsonify_pair("params", params, "array")); \n\n""" 
+	body += """\n    string params = serialize_array(param_objects); \n"""
+	body += """    pairs.push_back(serialize_pair("params", params, "array")); \n\n""" 
 	body += """    // Finalize the message \n""" 
-	body += """    message = jsonify_object(pairs);\n\n"""
+	body += """    message = serialize_object(pairs);\n\n"""
 	body += """    // Send the remote call\n"""
 	body += """    c150debug->printf(C150RPCDEBUG,\" {name}() invoked\");\n"""
 	body += """    RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null \n\n""" 

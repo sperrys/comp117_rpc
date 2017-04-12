@@ -130,6 +130,7 @@ def generate_stub_funcs(idl_funcs):
 		f += stub.construct_func_body(name, sig)
 		funcs += f 
 
+	funcs += stub.construct_bad_function()
 	funcs += stub.construct_dispatch_function(idl_funcs.iteritems())
 
 	return funcs

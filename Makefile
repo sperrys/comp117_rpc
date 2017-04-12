@@ -71,21 +71,23 @@ pingstreamserver: pingstreamserver.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 #
 ########################################################################
 
-arithmeticlient: arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o generic_serialization.o generic_deserialization.o serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o arithmetic.proxy.o generic_serialization.o generic_deserialization.o serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)
+arithmeticlient: arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o arithmeticclient arithmeticclient.o rpcproxyhelper.o gen.arithmetic.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)
 
-arithmeticserver: arithmetic.stub.o rpcserver.o rpcstubhelper.o arithmetic.o generic_serialization.o generic_deserialization.o serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o arithmeticserver rpcserver.o arithmetic.stub.o arithmetic.o rpcstubhelper.o generic_serialization.o generic_deserialization.o serialization.o deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR) 
+arithmeticserver: arithmetic.stub.o rpcserver.o rpcstubhelper.o arithmetic.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o arithmeticserver rpcserver.o gen.arithmetic.stub.o arithmetic.o rpcstubhelper.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR) 
 
-simplefunctionclient: simplefunctionclient.o rpcproxyhelper.o simplefunction.proxy.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o simplefunctionclient simplefunctionclient.o rpcproxyhelper.o simplefunction.proxy.o  $(C150AR) $(C150IDSRPCAR) 
+
+
+simplefunctionclient: simplefunctionclient.o rpcproxyhelper.o gen.simplefunction.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o simplefunctionclient simplefunctionclient.o rpcproxyhelper.o gen.simplefunction.proxy.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o  $(C150AR) $(C150IDSRPCAR) 
 
 # The following is NOT a mistake. The main program for any of the rpc servers
 # is rpcserver.o.  This way, we can make a different one for each set 
 # of functions, by linking the right specific stugs (in this case
 # simplefunction.stub.o)
-simplefunctionserver: simplefunction.stub.o rpcserver.o rpcstubhelper.o simplefunction.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
-	$(CPP) -o simplefunctionserver rpcserver.o simplefunction.stub.o simplefunction.o rpcstubhelper.o $(C150AR) $(C150IDSRPCAR) 
+simplefunctionserver: gen.simplefunction.stub.o rpcserver.o rpcstubhelper.o simplefunction.o  $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
+	$(CPP) -o simplefunctionserver rpcserver.o gen.simplefunction.stub.o simplefunction.o rpcstubhelper.o generic_serialization.o generic_deserialization.o gen.serialization.o gen.deserialization.o tcp.o $(C150AR) $(C150IDSRPCAR) 
 
 
 ########################################################################
@@ -98,8 +100,8 @@ simplefunctionserver: simplefunction.stub.o rpcserver.o rpcstubhelper.o simplefu
 ########################################################################
 
 # Compile the rpcgenerate program
-rpcgenerate: Makefile rpcgenerate.o $(C150AR) $(C150IDSRPCAR) $(INCLUDES)
-	$(CPP) -o rpcgenerate rpcgenerate.o $(C150AR) $(C150IDSRPCAR)
+# rpcgenerate: Makefile rpcgenerate.o $(C150AR) $(C150IDSRPCAR) $(INCLUDES)
+#	$(CPP) -o rpcgenerate rpcgenerate.o $(C150AR) $(C150IDSRPCAR)
 
 ########################################################################
 #

@@ -42,29 +42,36 @@ def construct_func_body(name, sig):
 	body += "); \n\n"
 
 	body+= "      // Compose the remote call\n"
-	body+= "      vector<string> pairs;\n"
-	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
-	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}(result), "object"));\n"""
-	body+= """      string message = serialize_object(pairs);\n\n """
+  	body+= "      vector<string> pairs;\n"
+  	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
+  	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
+  	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}(result), "object"));\n"""
+  	body+= """      string message = serialize_object(pairs);\n\n """
 
-	body += """     // Send the response to the client\n""" 
-	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
-	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
+  	body += """     // Send the response to the client\n""" 
+  	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
+  	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
 
 	f = body.format(name=name, rtypehandle=utils.add_serialize(sig["return_type"]))
 	return f + "}\n"
 
+def construct_bad_function():
+	decl = "void __badFunction(string func_name) { \n"
+	body = "    char doneBuffer[5] = \"BAD\";  // to write magic value DONE + null  \n\n"
+	body += "    // Send the response to the client indicating bad function\n"
+	body += "    c150debug->printf(C150RPCDEBUG,\"simplefunction.stub.cpp: received call for nonexistent function %s()\", func_name);\n"
+	body += "    RPCSTUBSOCKET->write(doneBuffer, strlen(doneBuffer)+1);\n } \n"
 
+	return decl + body 
 # This function constructs the stub's dispatch function 
 def construct_dispatch_function(idl_funcs):
 	body ="" 
 	decl = "\nvoid dispatch_Function() {\n"
 	body += "    // Read the Json Message in \n"
 	body += "    string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));\n\n"
-	body += "    string func_name = exstract_string(json_str, \"method\");\n"
+	body += "    string func_name = extract_string(json_str, \"method\");\n"
 	body += "    int param_count = extract_int(json_str, \"param_count\");\n"
-	body += "    string params = extract_array(json_strm \"params\");\n\n"
+	body += "    string params = extract_array(json_str, \"params\");\n\n"
 
 	body += "    if(!RPCSTUBSOCKET->eof()) { \n"
 
@@ -73,6 +80,6 @@ def construct_dispatch_function(idl_funcs):
 		body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
 
 	body += "        else\n"
-	body += "            __badFuction(json_str, param_count, params);\n"
+	body += "            __badFunction(func_name);\n"
 
 	return decl + body + "    }\n}\n"

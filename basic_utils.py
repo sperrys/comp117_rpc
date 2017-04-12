@@ -80,12 +80,12 @@ def gen_libs(include, stub_type):
 		for g_lib in c.STUB_GLOBALS: 
 			include += c.INCLUDE + add_arrows(g_lib) + "\n"
 		for l_lib in c.STUB_LOCALS:
-			include += c.INCLUDE + add_arrows(l_lib) + "\n"
+			include += c.INCLUDE + add_quotes(l_lib) + "\n"
 	elif stub_type == "PROXY":
 		for g_lib in c.PROXY_GLOBALS: 
 			include += c.INCLUDE + add_arrows(g_lib) + "\n"
 		for l_lib in c.PROXY_LOCALS:
-			include += c.INCLUDE + add_arrows(l_lib) + "\n"
+			include += c.INCLUDE + add_quotes(l_lib) + "\n"
 	return include
 
 # function that takes the filebase and the file extension
