@@ -98,7 +98,7 @@ def handle_struct(name, sig):
 		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object"));\n"""
 		mem_format = mem_string.format(mname=name, mtype_handle=mtype_handle, my_name=utils.add_my(name), mname2=mname)		
 		body += mem_format
-	body+= " stringstream value;\n    value << serialize_object(elements); \n"
+	body+= "    stringstream value;\n    value << serialize_object(elements); \n"
 
 			
 	body += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}}\n\n"""
