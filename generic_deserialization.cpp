@@ -11,6 +11,7 @@ using namespace std;
 
 #include <string>
 #include <regex>
+#include <iostream>
 
 #include "generic_deserialization.h"
 
@@ -96,18 +97,18 @@ bool extract_bool(string json, string key) {
 }
 
 float extract_float(string json, string key) {
-  // Warning: regex requires at least one digit preceding the decimal
-  regex pair_regex("\"(" + key + ")\":(-?[0-9]+[\\.][0-9]*)[,}\\]]"); // "(my_key)":(-?[0-9]+[\.][0-9]*)[,}\]]
+  // regex pair_regex("\"(" + key + ")\":([-+]?[0-9]*[\\.]?[0-9]+?[eE]?[-+]?[0-9]+?)[,}\\]]");
+  regex pair_regex("\"(" + key + ")\":([-+]?[0-9]*[\\.]?[0-9]{0,1000}[eE]?[-+]?[0-9]{0,1000})[,}\\]]");
   smatch pair_matches;
   
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
   if (!pair_exists) { throw runtime_error("Search for float belonging to key '" + key + "' failed."); }
-  
+  cout << "match: " << pair_matches[2] << endl;
   return stof(pair_matches[2]);
 }
 
 int extract_int(string json, string key) {
-  regex pair_regex("\"(" + key + ")\":(-?[0-9]+)[,}\\]]"); // "(my_key)":(-?[0-9]+)[,}\]]
+  regex pair_regex("\"(" + key + ")\":([-+]?[0-9]+)[,}\\]]"); // "(my_key)":([-+]?[0-9]+)[,}\]]
   smatch pair_matches;
   
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
