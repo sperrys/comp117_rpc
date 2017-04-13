@@ -86,8 +86,8 @@ def generate_serial_header(idl_types):
 # serialization implementation content and returns it
 def generate_serial_imp(idl_types, filename):
 	imp_content = "//                  serilization.cpp\n//\n//     This is generated implementation file for the serialization \n\n\n"
-	imp_content += "using namespace std;\n#include <string>\n\n#include \"generic_serialization.h\"\n#include \"serialization.h\"\n\n\n"
 	imp_content += "#include \""+filename+"\"\n"
+	imp_content += "#include \"generic_serialization.h\"\n#include \"serialization.h\"\n\n"
 	for name, sig in idl_types:
 		imp_content += serializer.construct_decl(name, sig, False) + serializer.construct_body(name, sig)
 	return imp_content
@@ -107,8 +107,10 @@ def generate_deserial_header(idl_types):
 # deserialization implementation content and returns it
 def generate_deserial_imp(idl_types, filename):
 	imp_content = "//                  deserilization.cpp\n//\n//     This is generated implementation file for the deserialization \n\n\n"
-	imp_content += "using namespace std;\n#include <string>\n\n#include \"generic_deserialization.h\"\n#include \"deserialization.h\"\n\n\n"
+	imp_content += "using namespace std;\n#include <string>\n\n\n"
 	imp_content += "#include \""+filename+"\"\n"
+	imp_content += "#include \"generic_deserialization.h\"\n#include \"deserialization.h\"\n\n"
+
 
 	for name, sig in idl_types:
 		imp_content += deserializer.construct_decl(name, sig, False) + deserializer.construct_body(name, sig)
