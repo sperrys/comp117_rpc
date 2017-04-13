@@ -22,7 +22,7 @@ def construct_func_decl(name, sig):
 def construct_func_body(name, sig):
 	body = "\n"
 	args = sig["arguments"]
-	rtype = sig["return_type"] + " result = "
+	rtype = sig["return_type"] + " result"
 	is_result = "result"
 
 	if sig["return_type"] == "void":
@@ -49,24 +49,34 @@ def construct_func_body(name, sig):
 
 	body += "\n      // Time to Call The Function\n \n"
 	body += "      c150debug->printf(C150RPCDEBUG,\"stub - invoking {name}() \");\n"
-	body += "      " + rtype +" {name}("
-	
+	body += "      bool error = false;\n"
+	if sig["return_type"] != "void":
+		body += "      " + rtype + ";\n"
+		body += "      try {{\n"
+		body += "        result = {name}("
+	else:
+		body += "      try {{\n"
+		body += "        {name}("
+
 	for a in args:
 		body += a["name"]
 		if a != args[-1]:
 			body += ", "
-	body += "); \n\n"
+	body += ");\n"
+	body += "      }} catch (...) {{\n"
+	body += "        error = true;\n"
+	body += "      }}\n\n"
 
-	body+= "      // Compose the remote call\n"
-  	body+= "      vector<string> pairs;\n"
-  	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}({is_result}), "object"));\n"""
-  	body+= """      string message = serialize_object(pairs);\n\n """
+	body += "      // Compose the remote call\n"
+	body += "      vector<string> pairs;\n"
+	body += """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
+	body += """      pairs.push_back(serialize_pair("error", error ? "true" : "false", "bool"));\n"""
+	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}({is_result}), "object"));\n"""
+	body+= """      string message = serialize_object(pairs);\n\n """
 
-  	body += """     // Send the response to the client\n""" 
-  	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
-  	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
+	body += """     // Send the response to the client\n""" 
+	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
+	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
 
 	f = body.format(name=name, rtypehandle=utils.add_serialize(sig["return_type"]), is_result=is_result)
 	return f + "}\n"
@@ -85,17 +95,26 @@ def construct_dispatch_function(idl_funcs):
 	decl = "\nvoid dispatchFunction() {\n"
 	body += "    // Read the Json Message in \n"
 	body += "    string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));\n\n"
+	body += "    if (json_str == \"\") { return; }\n\n"
+	body += "    cout << json_str << endl;"
 	body += "    string func_name = extract_string(json_str, \"method\");\n"
 	body += "    int param_count = extract_int(json_str, \"param_count\");\n"
 	body += "    string params = extract_array(json_str, \"params\");\n\n"
 
 	body += "    if(!RPCSTUBSOCKET->eof()) { \n"
 
+	iteration = 0
 	for name, sig in idl_funcs:
-		body += "        if(func_name == \""+ name + "\")\n"
-		body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		if iteration == 0:
+			body += "        if(func_name == \""+ name + "\") {\n"
+			body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		else:
+			body += "        } else if(func_name == \""+ name + "\") {\n"
+			body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		iteration += 1
 
-	body += "        else\n"
+	body += "        } else {\n"
 	body += "            __badFunction(func_name);\n"
+	body += "        }\n"
 
 	return decl + body + "    }\n}\n"

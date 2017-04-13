@@ -18,7 +18,7 @@
 // CODE HERE ACTUALLY MATCHES THE REMOTED INTERFACE
 
 #include "arithmetic.idl"
-
+#include <stdexcept>
 
 
 int add(int x, int y) {
@@ -37,3 +37,10 @@ int divide(int x, int y) {
   return x/y;
 }
 
+void empty() {
+  return;
+}
+
+void erroneous() {
+  throw std::runtime_error("intentional error");
+}

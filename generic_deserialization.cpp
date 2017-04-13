@@ -56,6 +56,14 @@ string consume_object(string &json) {
 }
 
 string extract_array(string json, string key) {
+  // first check for empty array
+  regex empty_regex("\"(" + key + ")\":(2\\[\\])");
+  smatch empty_matches;
+
+  bool empty_array = regex_search(json, empty_matches, empty_regex);
+  if (empty_array) { return ""; }
+
+  // if the array isn't empty, extract the contents
   regex pair_regex("\"(" + key + ")\":([0-9]+\\[[0-9]+\\{.+\\}\\])");
   smatch pair_matches;
 
@@ -109,7 +117,14 @@ int extract_int(string json, string key) {
 }
 
 string extract_object(string json, string key) {
-  // extract the object and everything following it in the json string
+  // first check for empty object
+  regex empty_regex("\"(" + key + ")\":(2\\{\\})");
+  smatch empty_matches;
+
+  bool empty_obj = regex_search(json, empty_matches, empty_regex);
+  if (empty_obj) { return ""; }
+
+  // if the object isn't empty, extract the contents
   regex pair_regex("\"(" + key + ")\":([0-9]+\\{.+\\})");
   smatch pair_matches;
 
