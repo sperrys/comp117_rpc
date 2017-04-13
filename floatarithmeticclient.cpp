@@ -115,9 +115,9 @@ main(int argc, char *argv[]) {
        // 
        // Call (possibly remote) add
        //
-       printf("Calling add(10.0,3.5)\n");
-       result = add(10.0,3.5);                          // remote call (we hope!)
-       printf("Returned from add(10.0,3.5). Result=%f\n",result);
+       printf("Calling add(10.0e201,3.5)\n");
+       result = add(10.0e20,3.5);                          // remote call (we hope!)
+       printf("Returned from add(10.0e201,3.5). Result=%f\n",result);
 
        // 
        // Call (possibly remote) subtract
