@@ -120,91 +120,28 @@ int main(int argc, char *argv[]) {
        rpcproxyinitialize(argv[serverArg]);
 
        printf("Calling add(10,2)\n");
-       result = add(10,2);                          // remote call (we hope!)
+       result = add(10,2);
        printf("Returned from add(10,2). Result=%d\n",result);
 
        printf("Calling subtract(10,2)\n");
-       result = subtract(10,2);                          // remote call (we hope!)
+       result = subtract(10,2);
        printf("Returned from subtract(10,2). Result=%d\n",result);
 
        printf("Calling multiply(10,2)\n");
-       result = multiply(10,2);                          // remote call (we hope!)
+       result = multiply(10,2);
        printf("Returned from multiply(10,2). Result=%d\n",result);
 
        printf("Calling divide(10,2)\n");
-       result = divide(10,2);                          // remote call (we hope!)
+       result = divide(10,2);
        printf("Returned from divide(10,2). Result=%d\n",result);
 
        printf("Calling empty()\n");
-       empty();                          // remote call (we hope!)
-       printf("Returned from empty().");
+       empty();
+       printf("Returned from empty().\n");
 
-       printf("Calling divide(10,0)\n");
-       result = divide(10,0);                          // remote call (we hope!)
-       printf("Returned from divide(10,2). Result=%d\n",result);
-
-       // 
-       // Call (possibly remote) sum
-       //
-       //printf("Calling sum([10,2,4])\n");
-       //int nums[3] = { 10, 2, 4 };
-       //result = sum(nums);                          // remote call (we hope!)
-       //printf("Returned from sum([10,2,4]). Result=%d\n",result);
-
-       // 
-       // Call (possibly remote) sum
-       //
-       //printf("Calling person_func(jack)\n");
-       //struct Person jack = { "Jack", "Daniels", 59 };
-       //person_func(jack);                          // remote call (we hope!)
-       //printf("Returned from person_func(jack).");
-
-       // 
-       // Call (possibly remote) sum
-       //
-       // printf("Calling people_func(three)\n");
-
-       // struct Person p_1 = { "Jack", "Daniels", 59, { 1, 2, 3 } };
-       // struct Person p_2 = { "Henry", "Ford", 32, { 4, 5, 6 } };
-       // struct Person p_3 = { "Ben", "Wallibur", 19, { 7, 8, 9 } };
-
-       // struct ThreePeople three = { p_1, p_2, p_3 };
-       // people_func(three);        // remote call (we hope!)
-       // printf("Returned from people_func(three). Result=%s\n", person_result.firstname.c_str());
-
-       // printf("Calling people_array(people_arr)\n");
-
-       // struct Person p_1 = { "Jack", "Daniels", 59 };
-       // struct Person p_2 = { "Henry", "Ford", 32 };
-       // struct Person p_3 = { "Ben", "Wallibur", 19 };
-
-       // Person people_arr[3] = { p_1, p_2, p_3 };
-
-       // people_array(people_arr);
-
-
-       // 
-       // Call (possibly remote) subtract
-       //
-
-       // printf("Calling subtract(10,2)\n");
-       // result = subtract(10,2);                          // remote call (we hope!)
-       // printf("Returned from subtract(10,2). Result=%d\n",result);
-
-       // 
-       // Call (possibly remote) multiply
-       //
-       // printf("Calling multiply(10,2)\n");
-       // result = multiply(10,2);                          // remote call (we hope!)
-       // printf("Returned from multiply(10,2). Result=%d\n",result);
-
-       // 
-       // Call (possibly remote) divide
-       //
-       // printf("Calling divide(10,2)\n");
-       // result = divide(10,2);                          // remote call (we hope!)
-       // printf("Returned from divide(10,2). Result=%d\n",result);
-
+       printf("Calling erroneous()\n");
+       erroneous();
+       printf("Returned from erroneous().\n");
 
      }
 
