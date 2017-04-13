@@ -75,7 +75,7 @@ def generate_file_head(filename, stub_type):
 # serialization header content and returns it
 def generate_serial_header(idl_types, filename):
 	header_content = "//                  serilization.h\n//\n//     This is generated header file for the serialization \n\n\n"
-	header_content += "#include \""+filename+"\"\n"
+	#header_content += "#include \""+filename+"\"\n"
 	for name, sig in idl_types:
 		header_content += serializer.construct_decl(name, sig, True)
 	return header_content
@@ -84,8 +84,7 @@ def generate_serial_header(idl_types, filename):
 # generates the corresponding 
 # serialization implementation content and returns it
 def generate_serial_imp(idl_types):
-	imp_content = "//                  serilization.cpp\n//\n//     This is generated implementation file for the serialization \n\n\n"
-	imp_content += "using namespace std;\n#include <string>\n\n#include \"generic_serialization.h\"\n#include \"gen.serialization.h\"\n\n\n"
+	imp_content = "//                  serilization.cpp\n//\n//     This is generated implementation file for the serialization \n\n\n#include \"generic_serialization.h\"\n#include \"gen.serialization.h\"\n\n\n"
 	for name, sig in idl_types:
 		imp_content += serializer.construct_decl(name, sig, False) + serializer.construct_body(name, sig)
 	return imp_content
@@ -95,7 +94,7 @@ def generate_serial_imp(idl_types):
 # serialization header content and returns it
 def generate_deserial_header(idl_types, filename):
 	header_content = "//                  deserilization.h\n//\n//     This is generated header file for the serialization \n\n\n"
-	header_content += "#include \""+filename+"\"\n"
+	#header_content += "#include \""+filename+"\"\n"
 	for name, sig in idl_types:
 		header_content += deserializer.construct_decl(name, sig, True)
 
@@ -105,8 +104,7 @@ def generate_deserial_header(idl_types, filename):
 # generates the corresponding 
 # deserialization implementation content and returns it
 def generate_deserial_imp(idl_types):
-	imp_content = "//                  deserilization.cpp\n//\n//     This is generated implementation file for the deserialization \n\n\n"
-	imp_content += "using namespace std;\n#include <string>\n\n#include \"generic_deserialization.h\"\n#include \"gen.deserialization.h\"\n\n\n"
+	imp_content = "//                  deserilization.cpp\n//\n//     This is generated header file for the deserialization \n\n\n#include \"generic_deserialization.h\"\n#include \"gen.deserialization.h\"\n\n\n"
 	for name, sig in idl_types:
 		imp_content += deserializer.construct_decl(name, sig, False) + deserializer.construct_body(name, sig)
 	return imp_content
@@ -125,7 +123,7 @@ def generate_proxy_funcs(idl_funcs):
 # Function that takes the idl type and 
 # generates the corresponding stub functions
 def generate_stub_funcs(idl_funcs): 
-	funcs = ""
+	funcs = "void dispatchFunction();\n\n"
 	for name, sig in idl_funcs.iteritems():
 		f = ""
 		f += stub.construct_func_decl(name, sig)
@@ -134,6 +132,7 @@ def generate_stub_funcs(idl_funcs):
 
 	funcs += stub.construct_bad_function()
 	funcs += stub.construct_dispatch_function(idl_funcs.iteritems())
+
 
 	return funcs
 

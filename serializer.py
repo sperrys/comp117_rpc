@@ -24,8 +24,6 @@ def construct_decl(name, sig, header):
 	if (sig["type_of_type"] == "builtin"):
 		return "" 
 
-	
-
 	if sig["type_of_type"] == "array":
 		decl = "string" + " " + utils.add_serialize(utils.replace_brackets(name)[:-1]) + '('
 		decl += utils.remove_prepend(sig["member_type"]) + " " + utils.add_my(name) + " " + '[' + str(sig["element_count"]) + '])' + end + '\n' 	
