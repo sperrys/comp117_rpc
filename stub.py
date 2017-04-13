@@ -22,7 +22,7 @@ def construct_func_decl(name, sig):
 def construct_func_body(name, sig):
 	body = "\n"
 	args = sig["arguments"]
-	rtype = sig["return_type"] + " result = "
+	rtype = sig["return_type"] + " result"
 	is_result = "result"
 
 	if sig["return_type"] == "void":
@@ -49,24 +49,34 @@ def construct_func_body(name, sig):
 
 	body += "\n      // Time to Call The Function\n \n"
 	body += "      c150debug->printf(C150RPCDEBUG,\"stub - invoking {name}() \");\n"
-	body += "      " + rtype +" {name}("
-	
+	body += "      bool error = false;\n"
+	if sig["return_type"] != "void":
+		body += "      " + rtype + ";\n"
+		body += "      try {{\n"
+		body += "        result = {name}("
+	else:
+		body += "      try {{\n"
+		body += "        {name}("
+
 	for a in args:
 		body += a["name"]
 		if a != args[-1]:
 			body += ", "
-	body += "); \n\n"
+	body += ");\n"
+	body += "      }} catch (...) {{\n"
+	body += "        error = true;\n"
+	body += "      }}\n\n"
 
-	body+= "      // Compose the remote call\n"
-  	body+= "      vector<string> pairs;\n"
-  	body+= """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("error", "false", "bool"));\n"""
-  	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}({is_result}), "object"));\n"""
-  	body+= """      string message = serialize_object(pairs);\n\n """
+	body += "      // Compose the remote call\n"
+	body += "      vector<string> pairs;\n"
+	body += """      pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
+	body += """      pairs.push_back(serialize_pair("error", error ? "true" : "false", "bool"));\n"""
+	body+= """      pairs.push_back(serialize_pair("result", {rtypehandle}({is_result}), "object"));\n"""
+	body+= """      string message = serialize_object(pairs);\n\n """
 
-  	body += """     // Send the response to the client\n""" 
-  	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
-  	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
+	body += """     // Send the response to the client\n""" 
+	body += """      c150debug->printf(C150RPCDEBUG,"simplefunction.stub.cpp: returned from  func1() -- responding to client");\n"""
+	body += """      RPCSTUBSOCKET->write(message.c_str(), message.length() + 1);\n"""
 
 	f = body.format(name=name, rtypehandle=utils.add_serialize(sig["return_type"]), is_result=is_result)
 	return f + "}\n"
