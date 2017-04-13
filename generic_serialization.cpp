@@ -9,16 +9,9 @@
 //     the IDL File 
 
 using namespace std;
-
 #include <string>
-#include <sstream>
 
 #include "generic_serialization.h" 
-
-const string VALUE_KEY = "value";
-const string TYPE_KEY = "type";
-const string STRUCT_KEY = "is_struct";
-const string ARRAY_KEY = "is_array";
 
 string serialize_pair(string key, string value, string json_type) {
   stringstream pair;
