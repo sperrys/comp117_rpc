@@ -1,3 +1,8 @@
+# TODO
+# - figure out why the client sends a garbage message on exit
+# - figure out how to prevent the Makefile from deleteing the proxy/stub after compiling with automatic generation
+# - make sure gradelog and debug output are to spec.
+
 # Makefile for COMP 117 RPC Samples
 #
 #    Copyright 2012 - Noah Mendelsohn
@@ -43,7 +48,7 @@ SERIALIZATION = generic_serialization.cpp serialization.cpp
 DESERIALIZATION = generic_deserialization.cpp deserialization.cpp
 TCP = tcp.o
 
-all: idl_to_json
+all: idl_to_json arithmeticclient arithmeticserver
 
 ########################################################################
 #
@@ -139,4 +144,4 @@ idl_to_json: idl_to_json.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 
 # clean up everything we build dynamically (probably missing .cpps from .idl)
 clean:
-	 rm -f idl_to_json *.o *.json *.pyc
+	 rm -f idl_to_json *.o *.json *.pyc arithmeticserver arithmeticclient
