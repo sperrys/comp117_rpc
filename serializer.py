@@ -47,7 +47,11 @@ def construct_body(name, sig):
 
 # Function that handles the serialization of an array type 
 def handle_array(name, sig):
-	member_type = utils.add_serialize(utils.replace_brackets(sig["member_type"])[:-1])
+	member_type = utils.add_serialize(utils.replace_brackets(sig["member_type"]))
+	
+	if has_prepend(sig["member_type"]):
+		member_type = member_type[:-1]
+
 	num_values = sig["element_count"]
 	mname = utils.add_my(name)
 
@@ -55,7 +59,7 @@ def handle_array(name, sig):
 	mbody = body.format(name=utils.remove_prepend(name))
 
 	mem_string = """    for (int i = 0; i < {iterations}; i++) {{ \n         elements.push_back({mtype_handle}({mname}[i]));\n    }}\n    stringstream value;\n    value << serialize_array(elements); \n"""
-	mem_format = mem_string.format(iterations=str(num_values-1), mname=mname, mtype_handle=member_type, mname2=mname)			
+	mem_format = mem_string.format(iterations=str(num_values), mname=mname, mtype_handle=member_type, mname2=mname)			
 	mbody += mem_format
 	mbody += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}\n\n"""
 	

@@ -14,7 +14,7 @@ import constants as c
 # for a given function name and signature 
 def construct_func_decl(name, sig):
 	args = sig["arguments"]
-	argstring = ', '.join([a["type"] + ' ' + a["name"] for a in args])
+	argstring = ', '.join([utils.remove_prepend(a["type"]) + ' ' + a["name"] for a in args])
 	func_sig = sig["return_type"] + " " + name +'(' + argstring +')'
 
 	return (func_sig + "  " + '{'  + "\n")
