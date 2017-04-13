@@ -24,12 +24,12 @@ def construct_decl(name, sig, header):
 	if (sig["type_of_type"] == "builtin"):
 		return "" 
 
-	decl = "string" + " " + utils.add_serialize(name) + '('
-
 	if sig["type_of_type"] == "array":
+		decl = "string" + " " + utils.add_serialize(utils.replace_brackets(name)[:-1]) + '('
 		decl += utils.remove_prepend(sig["member_type"]) + " " + utils.add_my(name) + " " + '[' + str(sig["element_count"]) + '])' + end + '\n' 	
 	elif sig["type_of_type"] == "struct":
-		decl += name + " " + utils.add_my(name) + ')' + end + "\n"
+	    decl = "string" + " " + utils.add_serialize(name) + '('
+	    decl += name + " " + utils.add_my(name) + ')' + end + "\n"
 
 	return decl 
 
@@ -44,9 +44,12 @@ def construct_body(name, sig):
 	return body 
 
 # Function that handles the serialization of an array type 
-# TODO make this prettier/make sense!!
 def handle_array(name, sig):
-	member_type = utils.add_serialize(sig["member_type"])
+	member_type = utils.add_serialize(utils.replace_brackets(sig["member_type"]))
+	
+	if has_prepend(sig["member_type"]):
+		member_type = member_type[:-1]
+
 	num_values = sig["element_count"]
 	mname = utils.add_my(name)
 
@@ -54,7 +57,7 @@ def handle_array(name, sig):
 	mbody = body.format(name=utils.remove_prepend(name))
 
 	mem_string = """    for (int i = 0; i < {iterations}; i++) {{ \n         elements.push_back({mtype_handle}({mname}[i]));\n    }}\n    stringstream value;\n    value << serialize_array(elements); \n"""
-	mem_format = mem_string.format(iterations=str(num_values-1), mname=mname, mtype_handle=member_type, mname2=mname)			
+	mem_format = mem_string.format(iterations=str(num_values), mname=mname, mtype_handle=member_type, mname2=mname)			
 	mbody += mem_format
 	mbody += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}\n\n"""
 	
@@ -69,8 +72,8 @@ def handle_struct(name, sig):
 		mname = mem["name"]
 		mtype = mem["type"]
 		mtype_handle = utils.add_my(mtype)
-		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object");\n"""
-		mem_format = mem_string.format(mname=mname, mtype_handle=mtype_handle, my_name=name, mname2=mname)		
+		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object"));\n"""
+		mem_format = mem_string.format(mname=mname, mtype_handle=utils.replace_brackets(mtype_handle)[:-1], my_name=name, mname2=mname)		
 		body += mem_format
 			
 	body += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}}\n\n"""

@@ -24,19 +24,19 @@ idl_funcs = decls["functions"]
 
 
 # Open serialization and deserialization header files 
-deserial_h = open("gen.deserialization.h", "w")
-serial_h = open("gen.serialization.h", "w")
+deserial_h = open("deserialization.h", "w")
+serial_h = open("serialization.h", "w")
 # Generate appropriate header file content
-deserial_h_content = utils.generate_deserial_header(idl_types.iteritems())
-serial_h_content = utils.generate_serial_header(idl_types.iteritems())
+deserial_h_content = utils.generate_deserial_header(idl_types.iteritems(), filename)
+serial_h_content = utils.generate_serial_header(idl_types.iteritems(), filename)
 # Write header content to files 
 deserial_h.write(deserial_h_content)
 serial_h.write(serial_h_content)
 
 
 # Open serialization and deserialization implementation files 
-deserial_cpp = open("gen.deserialization.cpp", "w")
-serial_cpp = open("gen.serialization.cpp", "w")
+deserial_cpp = open("deserialization.cpp", "w")
+serial_cpp = open("serialization.cpp", "w")
 # Generate appropriate implementation file content
 deserial_cpp_content = utils.generate_deserial_imp(idl_types.iteritems())
 serial_cpp_content = utils.generate_serial_imp(idl_types.iteritems())
@@ -48,8 +48,8 @@ serial_cpp.write(serial_cpp_content)
 # Create Proxy and Stub Files to write to 
 # (gen is temporary so we don't mix up handwritten ones)
 filebase = (os.path.splitext(filename)[0])
-proxy = open(filebase+".gen.proxy.cpp", "w")
-stub  = open(filebase+".gen.stub.cpp", "w")
+proxy = open(filebase+".proxy.cpp", "w")
+stub  = open(filebase+".stub.cpp", "w")
 # Generate File Comments and Includes for Stub And Proxy
 p_includes = utils.generate_file_head(filename, "PROXY")
 s_includes = utils.generate_file_head(filename, "STUB") 

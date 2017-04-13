@@ -28,14 +28,18 @@ def add_deserialize(name):
 def add_prepend(name):
 	return "__" + name
 def remove_prepend(name):
-	return name.replace("_","") # should be: name[2:]
+	return name.replace("_","")
 def has_prepend(name):
-	return (name[0] == "_") # should be: name[0:2] == "__"
+	return (name[0] == "_")
 def strip_type(name):
 	return re.sub(r'\[.+\]', "", name)
 def strip_num_elements(name):
 	name = str(name)
 	return (re.findall(r'\[(.*?)\]', name))
+def replace_brackets(name): 
+	string = name.replace('[', '_')
+	string = string.replace(']', '_')
+	return string
 
 
 
@@ -76,12 +80,12 @@ def gen_libs(include, stub_type):
 		for g_lib in c.STUB_GLOBALS: 
 			include += c.INCLUDE + add_arrows(g_lib) + "\n"
 		for l_lib in c.STUB_LOCALS:
-			include += c.INCLUDE + add_arrows(l_lib) + "\n"
+			include += c.INCLUDE + add_quotes(l_lib) + "\n"
 	elif stub_type == "PROXY":
 		for g_lib in c.PROXY_GLOBALS: 
 			include += c.INCLUDE + add_arrows(g_lib) + "\n"
 		for l_lib in c.PROXY_LOCALS:
-			include += c.INCLUDE + add_arrows(l_lib) + "\n"
+			include += c.INCLUDE + add_quotes(l_lib) + "\n"
 	return include
 
 # function that takes the filebase and the file extension
@@ -98,3 +102,6 @@ def gen_head_comments(filebase, extension, stub_type):
 	comments +=  c.COMMENT + " --------------------------------------------------------------" + c.NEWLINE
 
 	return comments
+
+
+

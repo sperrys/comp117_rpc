@@ -30,6 +30,10 @@ bool deserialize_bool(string bool_object) {
   return extract_bool(bool_object, "value");
 }
 
+void deserialize_void(string void_object) {
+  return; // nothing meaningful to extract
+}
+
 //
 // JSON utility functions.
 // 

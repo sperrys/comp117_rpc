@@ -11,6 +11,7 @@ bool deserialize_bool(string json);
 float deserialize_float(string json);
 int deserialize_int(string json);
 string deserialize_string(string json);
+void deserialize_void(string json);
 
 bool extract_bool(string json, string key);
 float extract_float(string json, string key);
