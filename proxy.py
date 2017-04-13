@@ -41,7 +41,7 @@ def construct_func_body(name, sig):
 	num_args = len(args)
 	body = """    // Compose the remote call\n    string message; \n    vector<string> pairs; \n\n"""
 	body += """    // Remote Call metadata \n    pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-	body += """    pairs.push_back(serialize_pair("param_count", "{param_count}", "string")); \n \n"""
+	body += """    pairs.push_back(serialize_pair("param_count", "{param_count}", "int")); \n \n"""
 	body += """    // Remote call params \n    vector<string> param_objects; \n"""
 
 	b = body.format(param_count=num_args, name=name)
