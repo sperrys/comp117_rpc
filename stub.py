@@ -95,6 +95,8 @@ def construct_dispatch_function(idl_funcs):
 	decl = "\nvoid dispatchFunction() {\n"
 	body += "    // Read the Json Message in \n"
 	body += "    string json_str = read_message(RPCSTUBSOCKET, read_message_size(RPCSTUBSOCKET));\n\n"
+	body += "    if (json_str == \"\") { return; }\n\n"
+	body += "    cout << json_str << endl;"
 	body += "    string func_name = extract_string(json_str, \"method\");\n"
 	body += "    int param_count = extract_int(json_str, \"param_count\");\n"
 	body += "    string params = extract_array(json_str, \"params\");\n\n"
