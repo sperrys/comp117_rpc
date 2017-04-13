@@ -69,7 +69,7 @@ def handle_struct(name, sig):
 			mem_string +="    for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n\n"
 			f = mem_string.format(mtype_handle=mtype_handle, num_arrays=("*" * num_arrays), mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype)[0])
 			body +=f 
-	body += "\n    return *" +utils.add_my(name)+ "\n}\n \n"
+	body += "\n    return *" +utils.add_my(name)+ ";\n}\n \n"
 	
 	return body 
 
