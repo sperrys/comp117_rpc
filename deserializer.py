@@ -85,7 +85,7 @@ def handle_array(name, sig):
 
 	mname = utils.add_my(utils.strip_type(mtype))
 
-	mbody =  "    {array_type} {height} {mname} = new {pname}{height}[{num_elements}];\n"
+	mbody =  "    {array_type} {height}* {mname} = new {pname}{height}[{num_elements}];\n"
 	mbody += "    string objs = extract_array(json, \"value\");\n\n"
 
 	mbody += "    for (int i = 0; i < {num_elements}; i++) {{\n"
@@ -94,7 +94,7 @@ def handle_array(name, sig):
 	mbody += "    return {mname}; \n}} \n" 
 
 
-	f = mbody.format(mname=mname, array_type=utils.strip_type(utils.remove_prepend(mtype)), pname=utils.strip_type(utils.remove_prepend(name)), num_elements=(num_values+1), height=height * "*")
+	f = mbody.format(mname=mname, array_type=utils.strip_type(utils.remove_prepend(mtype)), pname=utils.strip_type(utils.remove_prepend(name)), num_elements=num_values, height=height * "*")
 	
 	return f 
 
