@@ -118,8 +118,45 @@ main(int argc, char *argv[]) {
        int nums[3] = { 10, 2, 3};
 
        printf("Calling sum\n");
-       result = sum(nums);  // remote call (we hope!)
-       
+       result = sum(nums);  // remote call (we hope!) 
+       cout << "Return from sum - result: " << result << endl;
+
+       ///////////////////////////////////
+       printf("Calling person func \n");
+
+       Person p;
+       p.firstname = "Bob";
+       p.lastname = "Smith";
+
+       p.favorite_numbers = nums;
+
+       person_func(p);  // remote call (we hope!) 
+       cout << "Return from person_func()" << endl;
+ 
+       ///////////////////////////////////
+       ThreePeople 3p;
+
+       Person m;
+       m.firstname = "Randy";
+       m.lastname = "Savage";
+
+       int fav_nums2[3] = { 1, 2, 3};
+       p.favorite_numbers = fav_nums2;
+
+
+       Person l;
+       m.firstname = "Larry";
+       m.lastname = "Smith";
+
+       int fav_nums3[3] = { 10, 2, 3};
+       m.favorite_numbers = fav_nums3;
+
+       3p.p1 = m;
+       3p.p2 = l;
+       3p.p3 = p;
+
+       printf("Calling people func \n");
+       result = person_func(3p);  // remote call (we hope!) 
        cout << "Return from sum - result: " << result << endl;
 
      }
