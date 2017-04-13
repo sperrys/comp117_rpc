@@ -91,11 +91,18 @@ def construct_dispatch_function(idl_funcs):
 
 	body += "    if(!RPCSTUBSOCKET->eof()) { \n"
 
+	iteration = 0
 	for name, sig in idl_funcs:
-		body += "        if(func_name == \""+ name + "\")\n"
-		body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		if iteration == 0:
+			body += "        if(func_name == \""+ name + "\") {\n"
+			body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		else:
+			body += "        } else if(func_name == \""+ name + "\") {\n"
+			body += "             "+ utils.add_prepend(name)+"(json_str, param_count, params); \n"
+		iteration += 1
 
-	body += "        else\n"
+	body += "        } else {\n"
 	body += "            __badFunction(func_name);\n"
+	body += "        }\n"
 
 	return decl + body + "    }\n}\n"
