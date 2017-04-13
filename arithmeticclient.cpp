@@ -135,10 +135,13 @@ int main(int argc, char *argv[]) {
        result = divide(10,2);                          // remote call (we hope!)
        printf("Returned from divide(10,2). Result=%d\n",result);
 
+       printf("Calling empty()\n");
+       empty();                          // remote call (we hope!)
+       printf("Returned from empty().");
+
        printf("Calling divide(10,0)\n");
        result = divide(10,0);                          // remote call (we hope!)
        printf("Returned from divide(10,2). Result=%d\n",result);
-
 
        // 
        // Call (possibly remote) sum
