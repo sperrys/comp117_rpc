@@ -47,7 +47,7 @@ def construct_body(name, sig):
 def handle_array(name, sig):
 	member_type = utils.add_serialize(utils.replace_brackets(sig["member_type"]))
 	
-	if has_prepend(sig["member_type"]):
+	if utils.has_prepend(sig["member_type"]):
 		member_type = member_type[:-1]
 
 	num_values = sig["element_count"]
