@@ -62,11 +62,12 @@ def handle_struct(name, sig):
 			body += mem_format
 		# if the struct member is an array
 		else:
+			num_arrays = len(utils.strip_num_elements(mtype))
 			mtype_handle = utils.add_deserialize(utils.replace_brackets(mtype)[:-1])
-			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " *" + mname + " = "
+			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " {num_arrays} mname = "
 			mem_string +=" {mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
 			mem_string +="    for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n\n"
-			f = mem_string.format(mtype_handle=mtype_handle, mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype)[0])
+			f = mem_string.format(mtype_handle=mtype_handle, num_arrays=("*" * num_arrays), mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype)[0])
 			body +=f 
 	body += "\n    return *" +utils.add_my(name)+ "\n}\n \n"
 	
