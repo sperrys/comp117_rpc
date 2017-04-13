@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
      //
      //  Set up debug message logging
      //
-     setUpDebugLogging("simplefunctionclientdebug.txt",argc, argv);
+     setUpDebugLogging("arithmeticclientdebug.txt",argc, argv);
 
      //
      // Make sure command line looks right
