@@ -12,6 +12,11 @@
 
 using namespace std;
 
+const string VALUE_KEY = "value";
+const string TYPE_KEY = "type";
+const string STRUCT_KEY = "is_struct";
+const string ARRAY_KEY = "is_array";
+
 string serialize_array(vector<string> objects);
 string serialize_bool(bool my_bool);
 string serialize_char(char my_char);
