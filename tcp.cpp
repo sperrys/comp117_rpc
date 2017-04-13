@@ -25,8 +25,12 @@ size_t read_message_size(C150StreamSocket *socket) {
     }
   }
 
-  // catchall exception
-  throw C150Exception("Finding JSON size failed.");
+  // catchall error handling
+  if (readlen == 0) {
+    return 0;
+  } else {
+    throw C150Exception("Finding JSON size failed.");
+  }
 } 
 
 string read_message(C150StreamSocket *socket, size_t message_size) {
