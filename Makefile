@@ -39,8 +39,8 @@ CPPFLAGS = -g -Wall -Werror -I$(C150IDSRPC) -I$(C150LIB)
 LDFLAGS = 
 INCLUDES = $(C150LIB)c150streamsocket.h $(C150LIB)c150network.h $(C150LIB)c150exceptions.h $(C150LIB)c150debug.h $(C150LIB)c150utility.h $(C150LIB)c150grading.h $(C150IDSRPC)IDLToken.h $(C150IDSRPC)tokenizeddeclarations.h $(C150IDSRPC)tokenizeddeclaration.h $(C150IDSRPC)declarations.h $(C150IDSRPC)declaration.h $(C150IDSRPC)functiondeclaration.h $(C150IDSRPC)typedeclaration.h $(C150IDSRPC)arg_or_member_declaration.h rpcproxyhelper.h rpcstubhelper.h
 
-SERIALIZATION = generic_serialization.o serialization.o
-DESERIALIZATION = generic_deserialization.o deserialization.o
+SERIALIZATION = generic_serialization.cpp serialization.cpp
+DESERIALIZATION = generic_deserialization.cpp deserialization.cpp
 TCP = tcp.o
 
 all: idl_to_json
@@ -66,11 +66,11 @@ all: idl_to_json
 ########################################################################
 
 # Compile / link any client executable: 
-%client: %.o %.proxy.o rpcserver.o rpcproxyhelper.o %client.o %.proxy.o $(SERIALIZATION) $(DESERIALIZATION) $(TCP)
+%client: %.o %.proxy.o rpcserver.o rpcproxyhelper.o %client.o %.proxy.o $(TCP)
 	$(CPP) -o $@ $@.o rpcproxyhelper.o $*.proxy.o $(SERIALIZATION) $(DESERIALIZATION) $(TCP) $(C150AR) $(C150IDSRPCAR) 
 
 # Compile / link any server executable:
-%server: %.o %.stub.o rpcserver.o rpcstubhelper.o %.stub.o $(SERIALIZATION) $(DESERIALIZATION) $(TCP)
+%server: %.o %.stub.o rpcserver.o rpcstubhelper.o %.stub.o $(TCP)
 	$(CPP) -o $@ rpcserver.o $*.stub.o $*.o rpcstubhelper.o $(SERIALIZATION) $(DESERIALIZATION) $(TCP) $(C150AR) $(C150IDSRPCAR) 
 
 ########################################################################
@@ -124,7 +124,7 @@ idl_to_json: idl_to_json.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 #
 ########################################################################
 
-%.json:%.idl idl_to_json
+%.json: %.idl idl_to_json
 	     idl_to_json $< > $@
 
 ########################################################################
@@ -134,7 +134,7 @@ idl_to_json: idl_to_json.o $(C150AR) $(C150IDSRPCAR)  $(INCLUDES)
 ########################################################################
 
 # make .o from .cpp
-%.o:%.cpp  $(INCLUDES)
+%.o: %.cpp $(INCLUDES)
 	$(CPP) -c  $(CPPFLAGS) $< 
 
 # clean up everything we build dynamically (probably missing .cpps from .idl)
