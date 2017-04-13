@@ -121,6 +121,23 @@ string serialize_char(char my_char) {
   return serialize_object(param_pairs);
 }
 
+string serialize_float(float my_float) {
+  vector<string> param_pairs;
+
+  // value to string conversion
+  string type = "float";
+  stringstream value;
+  value << my_float;
+
+  // compose the inner description object
+  param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));
+  param_pairs.push_back(serialize_pair(STRUCT_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));
+  param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "float"));
+
+  return serialize_object(param_pairs);
+}
+
 string serialize_void() {
   vector<string> param_pairs;
 

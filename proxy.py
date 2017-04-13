@@ -14,7 +14,22 @@ import constants as c
 # for a given function name and signature 
 def construct_func_decl(name, sig):
 	args = sig["arguments"]
-	argstring = ', '.join([utils.remove_prepend(a["type"]) + ' ' + a["name"] for a in args])
+	argstring = ""
+
+	for a in args:
+		# if the argument is an array
+		if utils.has_prepend(a["type"]) == True:
+			num_arrys = len(utils.strip_num_elements(a["type"]))
+			mem_type = utils.strip_type(utils.remove_prepend(a["type"]))
+		else:
+		 	mem_type = a["type"]
+		 	num_arrys = 0
+
+		argstring += mem_type + ("*" * num_arrys) + " " + a["name"] + ", "
+
+	if argstring != "":
+		argstring = argstring[:-2]
+
 	func_sig = sig["return_type"] + " " + name +'(' + argstring +')'
 
 	return (func_sig + "  " + '{'  + "\n")
@@ -26,7 +41,7 @@ def construct_func_body(name, sig):
 	num_args = len(args)
 	body = """    // Compose the remote call\n    string message; \n    vector<string> pairs; \n\n"""
 	body += """    // Remote Call metadata \n    pairs.push_back(serialize_pair("method", "{name}", "string"));\n"""
-	body += """    pairs.push_back(serialize_pair("param_count", "{param_count}", "int")); \n \n"""
+	body += """    pairs.push_back(serialize_pair("param_count", "{param_count}", "string")); \n \n"""
 	body += """    // Remote call params \n    vector<string> param_objects; \n"""
 
 	b = body.format(param_count=num_args, name=name)
