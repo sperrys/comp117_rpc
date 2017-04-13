@@ -27,11 +27,19 @@ def construct_decl(name, sig, header):
 		return "" 
 
 	if sig["type_of_type"] == "array":
-		num_arrys = len(utils.strip_num_elements(sig["member_type"]))
+		num_arrys = (utils.strip_num_elements(sig["member_type"]))
 		mem_type = utils.strip_type(utils.remove_prepend(sig["member_type"]))
+		#print sig
 
 		decl = "string" + " " + utils.add_serialize(utils.replace_brackets(name)[:-1]) + '('
-		decl += mem_type + ("*" * num_arrys) + " " + param_name[:-1] + '[' + str(sig["element_count"]) + '])' + end + '\n' 	
+
+		decl += mem_type + " " + param_name[:-1] 
+
+		for a in num_arrys:
+			decl += "["+ a + "]"
+		decl += ') ' + end + '\n'
+		##"*" * num_arrys) + " " + param_name[:-1] + '[' + str(sig["element_count"]) + '])' + end + '\n' 
+		print decl	
 	
 	elif sig["type_of_type"] == "struct":
 	    decl = "string" + " " + utils.add_serialize(name) + '('
