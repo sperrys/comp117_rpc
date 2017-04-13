@@ -39,9 +39,9 @@ string read_message(C150StreamSocket *socket, size_t message_size) {
   ssize_t readlen;          // amount of data read from socket
   bool read_null;
 
+
   for (unsigned int i = 0; i < sizeof(buffer); i++) {
     readlen = socket->read(buff_ptr, 1);  // read a byte
-
     if (readlen == 0) {
       break;
     } else if (*buff_ptr++ == '\0') {
@@ -54,6 +54,7 @@ string read_message(C150StreamSocket *socket, size_t message_size) {
   if (readlen == 0) {
     c150debug->printf(C150RPCDEBUG,"Read zero length message, checking EOF");
     if (socket-> eof()) {
+      return "";
       c150debug->printf(C150RPCDEBUG,"EOF signaled on input");
     } else {
       throw C150Exception("Unexpected zero length read without EOF");
@@ -64,6 +65,7 @@ string read_message(C150StreamSocket *socket, size_t message_size) {
 
   // buffer to string
   string message(buffer);
+  cout << message  << endl;
   message = to_string(message_size) + "{" + message; // manually reformat message
 
   return message;

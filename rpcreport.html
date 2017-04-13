@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<!-- 
+ **********************************************************
+
+             TUFTS COMP 117 HOMEWORK ASSIGNMENT
+
+        Fill in your name, e-mail and answers to questions
+        in the sections provided below.
+
+          All questions are marked up: <li class="q">
+          All answers are marked up:   <li class="a">
+
+
+     PLEASE DO NOT MODIFY ANY THING OTHER THAN THE 
+     NAME, E-MAIL, AND ANSWER FIELDS (you may also add
+     css declarations in the <head> if you need them,
+     but usually you won't.
+
+ **********************************************************
+ -->
+
+
+<html>
+<head>
+<meta charset="utf-8"> 
+<title>Tufts COMP 117 Assignment &#8212; Remote Procedure Call Project Report</title>
+<link rel="stylesheet" type="text/css" href="http://www.cs.tufts.edu/comp/117/style/homework.css" />
+</head>
+
+<body class="homework">
+
+
+<!-- ******************************************************
+	   YOU MUST FILL IN YOUR NAME, UTLN AND EMAIL BELOW!!
+         (You may copy this from an earlier assignment
+                         if you like)
+
+     ****************************************************** -->
+
+
+<div class="student">
+<p>
+<span class="label">Student1 name: </span>
+Aaron Bowen 
+<br>
+
+<span class="label">UTLN: </span>
+abowen01
+<br>
+
+<span class="label">E-mail: </span>
+<!-- DON'T FORGET UP UPDATE THE MAILTO: URI BELOW ALONG WITH
+     YOUR EMAIL IN THE ANCHOR.  IT SHOULD LOOK LIKE:
+ <a href="mailto:lady.gaga@cs.tufts.edu">lady.gaga@cs.tufts.edu</a>
+--> 
+
+<a href="mailto:aaron.bowen@tufts.edu">aaron.bowen@tufts.edu</a>
+<br>
+<br>
+<br>
+<span class="label">Student2 name: </span>
+Spencer Perry
+<br>
+<span class="label">UTLN: </span>
+sperry02
+<br>
+
+<span class="label">E-mail: </span>
+<!-- DON'T FORGET UP UPDATE THE MAILTO: URI BELOW ALONG WITH
+     YOUR EMAIL IN THE ANCHOR.  IT SHOULD LOOK LIKE:
+ <a href="mailto:lady.gaga@cs.tufts.edu">lady.gaga@cs.tufts.edu</a>
+--> 
+
+<a href="mailto:spencer.perry@tufts.edu">spencer.perry@tufts.edu</a>
+
+<br>
+</p>
+</div>
+
+
+
+
+<div class="UpperLeftHeader">
+<p>Tufts COMP 117 (Spring 2017):
+<br>
+Internet-scale Distributed Systems
+</p>
+</div>
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - -
+		HOMEWORK TITLE
+  - -  - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+<div class="headerdiv">
+<h1>
+Tufts COMP 117:<br>
+RPC Project Report
+</h1>
+</div>
+
+<!-- ******************************************************
+
+              PLEASE ANSWER QUESTIONS IN THE SECTIONS
+	      LABELED class="a" (for answer)
+
+     ****************************************************** -->
+
+
+
+
+<div class="main">
+
+<h2 id="questions">Questions</h2>
+<!-- - - - - - - - - - - - - - - - - - - - - - - -
+		QUESTION
+  - -  - - - - - - - - - - - - - - - - - - - - - - -->
+<div class="qa">
+
+<ol class="qa">
+<li class="q">Did you implement an rpcgenerate program and does it handle all legal IDL files? If not, which test cases should we try in your submission  directory?</li>
+<li class="a">
+
+</li>
+
+<li class="q">What programming language did you use for your rpcgenerate program?</li>
+<li class="a">
+Put an X in the space next to your choice:
+<ul>
+  <li>_____ C++ (using the provided type framework)</li>
+  <li>___x__ Python (using the provided <code>idl_to_json</code>)</li>
+  <li>_____ Ruby (using the provided <code>idl_to_json</code>)</li>
+</ul>
+</li>
+
+<li class="q">Briefly explain the protocol you use over TCP to request function calls and return the results.</li>
+<li class="a">
+Our protocol was fairly simple in the sense that we used a widely used message format, (json) to format our requests and responses. Our main
+addition to the json format was the prepending of the size of the object (in bytes) to the object. For example we prepending the size of the entire json
+object to the beginning of the message and then prepended the size of subsequent objects with the json itself. Our json format included keys for the method, the number of parameters, the parameters themselves, and whether an object was an array or struct. 
+</li>
+
+<li class="q">Did you get help from anyone other than your teammate? If "yes", then briefly explain who helped you and how.</li>
+<li class="a">
+Besides consulting internet resources such as Stack Overflow and Noah, we did not.
+</li>
+
+
+<li class="q">(optional) Do you have any other comments on this assignment (e.g. was it worthwhile, what did you learn from it, do you have suggestions for improvment if the course is offered again)?</li>
+<li class="a">
+No futher comments at this point in time. 
+</li>
+
+</ol>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * -->
+<!--         ADDITIONAL INFORMATION            -->
+<!-- * * * * * * * * * * * * * * * * * * * * * -->
+
+<h2 id="reportbody">ADDITIONAL iNFORMATION</h2>
+
+<!-- Delete the entire paragraph below 
+     and replace it with your report. (Do NOT
+     keep the color:grey styling on your report! :-) -->
+
+<p>No more explanation is needed at this time.</p>
+
+</div>
+</div>
+</body>
+</html>

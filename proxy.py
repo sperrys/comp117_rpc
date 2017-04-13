@@ -67,7 +67,9 @@ def construct_func_body(name, sig):
 	body += """    pairs.push_back(serialize_pair("params", params, "array")); \n\n""" 
 	body += """    // Finalize the message \n""" 
 	body += """    message = serialize_object(pairs);\n\n"""
+	body += """    cout << message << endl;\n"""
 	body += """    // Send the remote call\n"""
+	body += """    *GRADING << " function - {name} invoked with params: " + params << endl; \n"""
 	body += """    c150debug->printf(C150RPCDEBUG,\" {name}() invoked\");\n"""
 	body += """    RPCPROXYSOCKET->write(message.c_str(), message.length() + 1); // write function name including null \n\n""" 
 	body += """    // Read the response\n"""
@@ -78,6 +80,7 @@ def construct_func_body(name, sig):
 	body += """        throw C150Exception("{name}() encountered an error during computation"); \n"""  
 	body += """    }} \n"""
 	body += """    c150debug->printf(C150RPCDEBUG, "{name}() successful return from remote call"); \n"""
+	body += """    *GRADING << " Succesful return from the remote call {name} " << endl;\n"""
 	body += """    return """ + utils.add_deserialize(sig["return_type"]) + "(extract_object(response, \"result\"));\n }} \n\n"
 
 	f_body = body.format(name=name)
