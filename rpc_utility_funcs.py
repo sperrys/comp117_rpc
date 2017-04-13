@@ -53,8 +53,10 @@ def check_args(argv):
 # Returns: A String of the generated file comments and include statements
 def generate_file_head(filename, stub_type):
 	filebase = (os.path.splitext(filename)[0])
-	include = "\n" * 3 + "#include <string>\n using namespace std;\n"
- 	#include += c.INCLUDE + utils.add_quotes(filename) + "\n"
+
+	include = "\n" * 3 + "using namespace std;\n#include <string>\n"
+ 	include += c.INCLUDE + utils.add_quotes(filename) + "\n"
+	
 	extension = "." + stub_type.lower() + ".cpp"
 
 	if stub_type == "STUB":
@@ -75,10 +77,9 @@ def generate_file_head(filename, stub_type):
 # serialization header content and returns it
 def generate_serial_header(idl_types, filename):
 	header_content = "//                  serilization.h\n//\n//     This is generated header file for the serialization \n\n\n"
-	header_content +=  "#ifndef S_H\n#define S_H\n#include \""+filename+"\"\n\n"
 	for name, sig in idl_types:
 		header_content += serializer.construct_decl(name, sig, True)
-	return header_content + "\n#endif\n"
+	return header_content
 
 # Function that takes the idl types, 
 # generates the corresponding 
@@ -95,11 +96,10 @@ def generate_serial_imp(idl_types):
 # serialization header content and returns it
 def generate_deserial_header(idl_types, filename):
 	header_content = "//                  deserilization.h\n//\n//     This is generated header file for the serialization \n\n\n"
-	header_content += "#ifndef D_H\n#define D_H\n#include \""+filename+"\"\n\n"
 	for name, sig in idl_types:
 		header_content += deserializer.construct_decl(name, sig, True)
 
-	return header_content + "\n#endif\n"
+	return header_content
 
 # Function that takes the idl types, 
 # generates the corresponding 
