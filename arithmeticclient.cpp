@@ -119,12 +119,26 @@ int main(int argc, char *argv[]) {
        //
        rpcproxyinitialize(argv[serverArg]);
 
-       // 
-       // Call (possibly remote) add
-       //
        printf("Calling add(10,2)\n");
        result = add(10,2);                          // remote call (we hope!)
        printf("Returned from add(10,2). Result=%d\n",result);
+
+       printf("Calling subtract(10,2)\n");
+       result = subtract(10,2);                          // remote call (we hope!)
+       printf("Returned from subtract(10,2). Result=%d\n",result);
+
+       printf("Calling multiply(10,2)\n");
+       result = multiply(10,2);                          // remote call (we hope!)
+       printf("Returned from multiply(10,2). Result=%d\n",result);
+
+       printf("Calling divide(10,2)\n");
+       result = divide(10,2);                          // remote call (we hope!)
+       printf("Returned from divide(10,2). Result=%d\n",result);
+
+       printf("Calling divide(10,0)\n");
+       result = divide(10,0);                          // remote call (we hope!)
+       printf("Returned from divide(10,2). Result=%d\n",result);
+
 
        // 
        // Call (possibly remote) sum
