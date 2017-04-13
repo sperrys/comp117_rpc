@@ -86,6 +86,7 @@ def generate_serial_header(idl_types):
 # serialization implementation content and returns it
 def generate_serial_imp(idl_types, filename):
 	imp_content = "//                  serilization.cpp\n//\n//     This is generated implementation file for the serialization \n\n\n"
+	imp_content += "using namespace std;\n#include <string>\n\n\n"
 	imp_content += "#include \""+filename+"\"\n"
 	imp_content += "#include \"generic_serialization.h\"\n#include \"serialization.h\"\n\n"
 	for name, sig in idl_types:
