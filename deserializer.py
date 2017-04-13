@@ -20,17 +20,18 @@ def construct_decl(name, sig, header):
 		end = ";"
 	else:
 		end = " {"
-
 	if (sig["type_of_type"] == "builtin"):
 		return "" 
-	if sig["type_of_type"] == "array":
-		decl += utils.strip_type(utils.remove_prepend(sig["member_type"])) + " " + "*" * len(utils.strip_num_elements(sig["member_type"]))
+	if sig["type_of_type"] == "array":	 	
+		decl += utils.strip_type(utils.remove_prepend(sig["member_type"])) + " *" + "*" * (len(utils.strip_num_elements(sig["member_type"])))
 		decl += utils.add_deserialize(utils.replace_brackets(name)[:-1]) + "(string json)" + end + "\n"
 	elif sig["type_of_type"] == "struct":
 		decl += name + " "
 		decl += utils.add_deserialize(utils.replace_brackets(name)) + "(string json)" + end + "\n"
 
 	return decl
+
+	
 
 # Function that takes in a type name and signature
 # Returns the body of the serialization function

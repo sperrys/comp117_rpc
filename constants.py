@@ -32,11 +32,13 @@ STUB_LOCALS = ["rpcstubhelper.h", "c150debug.h", "generic_deserialization.h", "d
 
 # These arrays define the libaries included 
 # for the proxy
+PROXY_GLOBALS  = []
+PROXY_LOCALS = ["rpcproxyhelper.h", "c150debug.h", "generic_deserialization.h", "gen.deserialization.h", "generic_serialization.h", "gen.serialization.h", "tcp.h"]
 PROXY_GLOBALS  = ["string"]
 PROXY_LOCALS = ["rpcproxyhelper.h", "c150debug.h", "generic_deserialization.h", "deserialization.h", "generic_serialization.h", "serialization.h", "tcp.h"]
 
 #These arrays define the namespaces for each file 
-P_NAMESPACE = ["C150NETWORK", "std"]
+P_NAMESPACE = ["C150NETWORK"]
 S_NAMESPACE = ["C150NETWORK", "std"] 
 
 #These arrays define the constants for each file

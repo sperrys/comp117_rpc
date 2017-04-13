@@ -30,11 +30,21 @@ def construct_func_body(name, sig):
 		is_result =""
 
 	for a in args: 
-		ptype = a["type"]
 		pname = a["name"]
-		ptypehandle = utils.add_deserialize(ptype)
-		param = "      {ptype} {pname} = {ptypehandle}(consume_object(params));\n"
-		f_param = param.format(ptype=utils.remove_prepend(ptype), ptypehandle=ptypehandle, pname=pname)
+
+		if utils.has_prepend(a["type"]) == True:
+			num_arrys = 1
+			ptype = utils.strip_type(utils.remove_prepend(a["type"]))
+			ptypehandle = utils.add_deserialize(utils.replace_brackets((a["type"]))[:-1])
+			num_arrys = len(utils.strip_num_elements(a["type"]))
+
+		else:
+		 	ptype = a["type"]
+		 	num_arrys = 0
+		 	ptypehandle = utils.add_deserialize(utils.replace_brackets((a["type"])))
+	
+		param = "      {ptype} {num_arrys}{pname} = {ptypehandle}(consume_object(params));\n"
+		f_param = param.format(ptype=ptype, num_arrys=num_arrys * "*", ptypehandle=ptypehandle, pname=pname)
 		body += f_param
 
 	body += "\n      // Time to Call The Function\n \n"
