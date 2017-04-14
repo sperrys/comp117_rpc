@@ -38,7 +38,6 @@ def construct_decl(name, sig, header):
 			decl += "["+ a + "]"
 		decl += ') ' + end + '\n'
 		##"*" * num_arrys) + " " + param_name[:-1] + '[' + str(sig["element_count"]) + '])' + end + '\n' 
-		print decl	
 	
 	elif sig["type_of_type"] == "struct":
 	    decl = "string" + " " + utils.add_serialize(name) + '('
