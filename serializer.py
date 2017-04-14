@@ -93,8 +93,8 @@ def handle_struct(name, sig):
 		else:
 			mtype_handle = utils.add_serialize(mtype)
 
-		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object"));\n"""
-		mem_format = mem_string.format(mname=name, mtype_handle=mtype_handle, my_name=utils.add_my(name), mname2=mname)		
+		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname}), "object"));\n"""
+		mem_format = mem_string.format(mtype_handle=mtype_handle, my_name=utils.add_my(name), mname=mname)		
 		body += mem_format
 	body+= " stringstream value;\n    value << serialize_object(elements); \n"
 

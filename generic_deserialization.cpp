@@ -103,7 +103,7 @@ float extract_float(string json, string key) {
   
   bool pair_exists = regex_search(json, pair_matches, pair_regex);
   if (!pair_exists) { throw runtime_error("Search for float belonging to key '" + key + "' failed."); }
-  cout << "match: " << pair_matches[2] << endl;
+
   return stof(pair_matches[2]);
 }
 

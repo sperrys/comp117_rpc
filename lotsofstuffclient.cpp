@@ -108,59 +108,69 @@ main(int argc, char *argv[]) {
      //
      try {
 
-       //
-       // Set up the socket so the proxies can find it
-       //
-       rpcproxyinitialize(argv[serverArg]);
+      //
+      // Set up the socket so the proxies can find it
+      //
+      rpcproxyinitialize(argv[serverArg]);
 
-       // 
-       // Call (possibly remote) func1
-       //
+      // 
+      // Call (possibly remote) func1
+      //
 
-       int nums[3] = { 10, 2, 3};
+      int nums[3] = { 10, 2, 3};
 
-       printf("Calling sum\n");
-       int result = sum(nums);  // remote call (we hope!) 
-       cout << "Return from sum(), result: " << result << endl;
+      printf("Calling sum\n");
+      int result = sum(nums);  // remote call (we hope!) 
+      cout << "Return from sum(), result: " << result << endl;
 
-       ///////////////////////////////////
-       printf("Calling person_func() \n");
+      ///////////////////////////////////
+      printf("Calling person_func() \n");
 
-       Person p = { "Bob", "Smith", 898, { 10, 2, 3 } };
+      Person p = { "Bob", "Smith", 898, { 10, 2, 3 } };
 
-       person_func(p);  // remote call (we hope!) 
-       cout << "Return from person_func()" << endl;
+      person_func(p);  // remote call (we hope!) 
+      cout << "Return from person_func()" << endl;
  
-       ///////////////////////////////////
-       ThreePeople p3;
+      ///////////////////////////////////
+      ThreePeople p3;
 
-       Person m = { "Randy", "Savage", 4, { 1, 2, 3 } };
+      Person m = { "Randy", "Savage", 4, { 1, 2, 3 } };
 
 
-       Person l = { "Larry", "Smith", 5, { 10, 2, 3 } };
+      Person l = { "Larry", "Smith", 5, { 10, 2, 3 } };
 
-       p3.p1 = m;
-       p3.p2 = l;
-       p3.p3 = p;
+      p3.p1 = m;
+      p3.p2 = l;
+      p3.p3 = p;
 
-       printf("Calling people_func() \n");
-       people_func(p3);  // remote call (we hope!) 
-       cout << "Return from people_func()" << endl;
+      printf("Calling people_func() \n");
+      people_func(p3);  // remote call (we hope!) 
+      cout << "Return from people_func()" << endl;
 
-     }
+      float x[4][2] = { { 5, 7 }, { 3, 7 }, { 2, 7 }, { 2, 7 } };
+      float y[4][3][6] = { 
+        { { 1, 2, 3, 4, 5, 6 }, { 1, 2, 3, 4, 5, 6 }, { 1, 2, 3, 4, 5, 6} },
+        { { 2, 3, 4, 5, 6, 7 }, { 2, 3, 4, 5, 6, 7 }, { 2, 3, 4, 5, 6, 7} },
+        { { 3, 4, 5, 6, 7, 8 }, { 3, 4, 5, 6, 7, 8 }, { 3, 4, 5, 6, 7, 8} },
+        { { 335, -234, 5e2, 64e-2, 64e+2, +64e-2 }, { -64e-2, 4, 5, 6, 7, 8 }, { 4, 5, 6, 7, 8, 9 } },
+      };
+      cout << "Calling takesTwoSuperArrays(int x[4][2], int y[4][3][6])" << endl;
+      result = takesTwoSuperArrays(x, y);
+      cout << "Return from takesTwoSuperArrays(), result: " << result << endl;
+    }
 
-     //
-     //  Handle networking errors -- for now, just print message and give up!
-     //
-     catch (C150Exception e) {
-       // Write to debug log
-       c150debug->printf(C150ALWAYSLOG,"Caught C150Exception: %s\n",
-			 e.formattedExplanation().c_str());
-       // In case we're logging to a file, write to the console too
-       cerr << argv[0] << ": caught C150NetworkException: " << e.formattedExplanation() << endl;
-     }
+    //
+    //  Handle networking errors -- for now, just print message and give up!
+    //
+    catch (C150Exception e) {
+      // Write to debug log
+      c150debug->printf(C150ALWAYSLOG,"Caught C150Exception: %s\n",
+      e.formattedExplanation().c_str());
+      // In case we're logging to a file, write to the console too
+      cerr << argv[0] << ": caught C150NetworkException: " << e.formattedExplanation() << endl;
+    }
 
-     return 0;
+    return 0;
 }
 
 
