@@ -57,7 +57,7 @@ def construct_func_body(name, sig):
 			body += "      " + utils.strip_type(utils.remove_prepend(a["type"])) + " " + pname + accessor + ";\n"
 			
 			indentation = "      "
-			var = "i"
+			var = "_____i"
 			for num_elems in utils.strip_num_elements(a["type"]):
 				temp_body = indentation + "for (int "+var+" = 0; "+var+" < {num_elems}; "+var+"++)"
  				body += temp_body.format(num_elems=num_elems)
@@ -65,11 +65,11 @@ def construct_func_body(name, sig):
 				indentation += "  "
 				var += "i"
 			
-			var = var[1:]
+			var = var[:-1]
 			accessor = ""
 			for i in range(1, num_arrays + 1):
 				accessor = "[" + var + "]" + accessor
-				var = var[1:]
+				var = var[:-1]
 			body += indentation + pname + accessor + " = " + utils.add_my(pname) + accessor + ";\n"
 
 			indentation = indentation[2:]

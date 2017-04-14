@@ -68,7 +68,7 @@ def handle_struct(name, sig):
 			mem_string +=" {mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
 			
 			indentation = "    "
-			var = "i"
+			var = "_____i"
 			for num_elems in utils.strip_num_elements(mtype):
 				temp_mem_string = indentation + "for (int "+var+" = 0; "+var+" < {num_elems}; "+var+"++)"
  				mem_string += temp_mem_string.format(num_elems=num_elems)
@@ -76,11 +76,11 @@ def handle_struct(name, sig):
 				indentation += "  "
 				var += "i"
 			
-			var = var[1:]
+			var = var[:-1]
 			accessor = ""
 			for i in range(1, num_arrays + 1):
 				accessor = "[" + var + "]" + accessor
-				var = var[1:]
+				var = var[:-1]
 			mem_string += indentation + "{my_name}->{mname}" + accessor + " = {mname}" + accessor + ";\n"
 
 			indentation = indentation[2:]
