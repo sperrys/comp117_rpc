@@ -42,8 +42,7 @@ P_NAMESPACE = ["C150NETWORK"]
 S_NAMESPACE = ["C150NETWORK", "std"] 
 
 #These arrays define the constants for each file
-P_CONSTANTS = ["string VALUE_KEY = \"value\"", "string TYPE_KEY = \"type\"",
-			   "string STRUCT_KEY = \"is_struct\"", "string ARRAY_KEY = \"is_array\""]
+P_CONSTANTS = []
 
 S_CONSTANTS = []
 

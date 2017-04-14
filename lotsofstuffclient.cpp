@@ -45,6 +45,9 @@
 // AND STUBS, AND ALSO USED AS INPUT TO AUTOMATIC PROXY/STUB
 // GENERATOR PROGRAM
 
+using namespace std;
+#include <string>
+
 #include "lotsofstuff.idl"
 
 #include "rpcproxyhelper.h"
@@ -53,7 +56,6 @@
 #include "c150grading.h"
 #include <fstream>
 
-using namespace std;          // for C++ std library
 using namespace C150NETWORK;  // for all the comp150 utilities 
 
 // forward declarations
@@ -122,42 +124,28 @@ main(int argc, char *argv[]) {
        cout << "Return from sum(), result: " << result << endl;
 
        ///////////////////////////////////
-       printf("Calling person func \n");
+       printf("Calling person_func() \n");
 
-       Person p;
-       p.firstname = "Bob";
-       p.lastname = "Smith";
-
-       p.favorite_numbers = nums;
+       Person p = { "Bob", "Smith", 898, { 10, 2, 3 } };
 
        person_func(p);  // remote call (we hope!) 
        cout << "Return from person_func()" << endl;
  
        ///////////////////////////////////
-       ThreePeople 3p;
+       ThreePeople p3;
 
-       Person m;
-       m.firstname = "Randy";
-       m.lastname = "Savage";
-
-       int fav_nums2[3] = { 1, 2, 3};
-       p.favorite_numbers = fav_nums2;
+       Person m = { "Randy", "Savage", 4, { 1, 2, 3 } };
 
 
-       Person l;
-       m.firstname = "Larry";
-       m.lastname = "Smith";
+       Person l = { "Larry", "Smith", 5, { 10, 2, 3 } };
 
-       int fav_nums3[3] = { 10, 2, 3};
-       m.favorite_numbers = fav_nums3;
+       p3.p1 = m;
+       p3.p2 = l;
+       p3.p3 = p;
 
-       3p.p1 = m;
-       3p.p2 = l;
-       3p.p3 = p;
-
-       printf("Calling people func \n");
-       result = person_func(3p);  // remote call (we hope!) 
-       cout << "Return from sum - result: " << result << endl;
+       printf("Calling people_func() \n");
+       people_func(p3);  // remote call (we hope!) 
+       cout << "Return from people_func()" << endl;
 
      }
 

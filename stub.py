@@ -32,12 +32,14 @@ def construct_func_body(name, sig):
 	for a in args: 
 		pname = a["name"]
 
+		# array
 		if utils.has_prepend(a["type"]) == True:
-			num_arrys = 1
 			ptype = utils.strip_type(utils.remove_prepend(a["type"]))
 			ptypehandle = utils.add_deserialize(utils.replace_brackets((a["type"]))[:-1])
 			num_arrys = len(utils.strip_num_elements(a["type"]))
+			pname = utils.add_my(pname)
 
+		# not array
 		else:
 		 	ptype = a["type"]
 		 	num_arrys = 0
@@ -46,6 +48,35 @@ def construct_func_body(name, sig):
 		param = "      {ptype} {num_arrys}{pname} = {ptypehandle}(consume_object(params));\n"
 		f_param = param.format(ptype=ptype, num_arrys=num_arrys * "*", ptypehandle=ptypehandle, pname=pname)
 		body += f_param
+
+		# add loops to copy over arrays to correct types
+		pname = a["name"]
+		if utils.has_prepend(a["type"]) == True:
+			num_arrays = len(utils.strip_num_elements(a["type"]))
+			accessor = "[" + "][".join(utils.strip_num_elements(a["type"])) + "]"
+			body += "      " + utils.strip_type(utils.remove_prepend(a["type"])) + " " + pname + accessor + ";\n"
+			
+			indentation = "      "
+			var = "i"
+			for num_elems in utils.strip_num_elements(a["type"]):
+				temp_body = indentation + "for (int "+var+" = 0; "+var+" < {num_elems}; "+var+"++)"
+ 				body += temp_body.format(num_elems=num_elems)
+ 				body += "{{\n"
+				indentation += "  "
+				var += "i"
+			
+			var = var[1:]
+			accessor = ""
+			for i in range(1, num_arrays + 1):
+				accessor = "[" + var + "]" + accessor
+				var = var[1:]
+			body += indentation + pname + accessor + " = " + utils.add_my(pname) + accessor + ";\n"
+
+			indentation = indentation[2:]
+			for i in range(1, num_arrays + 1):
+				body += indentation + "}}\n"
+				indentation = indentation[2:]
+
 
 	body += "\n      // Time to Call The Function\n \n"
 	body += "      c150debug->printf(C150RPCDEBUG,\"stub - invoking {name}() \");\n"

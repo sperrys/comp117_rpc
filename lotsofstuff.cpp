@@ -1,5 +1,5 @@
-#include <string>
 using namespace std;
+#include <string>
 
 #include "lotsofstuff.idl"
 #include <stdexcept>
@@ -34,6 +34,10 @@ int sum(int x[3]) {
 
 int takesTwoArrays(int x[24], int y[24]) {
   return 1;
+}
+
+int takesTwoSuperArrays(int x[24][2], int y[24][39][20]) {
+  return 2;
 }
 
 void searchRectangles(rectangle rects[200]) {

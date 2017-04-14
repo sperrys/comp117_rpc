@@ -64,7 +64,7 @@ def handle_struct(name, sig):
 		else:
 			num_arrays = len(utils.strip_num_elements(mtype))
 			mtype_handle = utils.add_deserialize(utils.replace_brackets(mtype)[:-1])
-			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " {num_arrays} mname = "
+			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " {num_arrays} {mname} = "
 			mem_string +=" {mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
 			
 			indentation = "    "

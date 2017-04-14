@@ -32,7 +32,7 @@ def construct_decl(name, sig, header):
 
 		decl = "string" + " " + utils.add_serialize(utils.replace_brackets(name)[:-1]) + '('
 
-		decl += mem_type + " " + param_name[:-1] + " " + "[" + str(sig["element_count"]) + "]" 
+		decl += mem_type + " " + param_name[:-1] + "[" + str(sig["element_count"]) + "]" 
 
 		for a in num_arrys:
 			decl += "["+ a + "]"
