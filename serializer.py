@@ -29,11 +29,10 @@ def construct_decl(name, sig, header):
 	if sig["type_of_type"] == "array":
 		num_arrys = (utils.strip_num_elements(sig["member_type"]))
 		mem_type = utils.strip_type(utils.remove_prepend(sig["member_type"]))
-		#print sig
 
 		decl = "string" + " " + utils.add_serialize(utils.replace_brackets(name)[:-1]) + '('
 
-		decl += mem_type + " " + param_name[:-1] 
+		decl += mem_type + " " + param_name[:-1] + " " + "[" + str(sig["element_count"]) + "]" 
 
 		for a in num_arrys:
 			decl += "["+ a + "]"
@@ -98,7 +97,7 @@ def handle_struct(name, sig):
 		mem_string = """    elements.push_back(serialize_pair("{mname}", {mtype_handle}({my_name}.{mname2}), "object"));\n"""
 		mem_format = mem_string.format(mname=name, mtype_handle=mtype_handle, my_name=utils.add_my(name), mname2=mname)		
 		body += mem_format
-	body+= "    stringstream value;\n    value << serialize_object(elements); \n"
+	body+= " stringstream value;\n    value << serialize_object(elements); \n"
 
 			
 	body += """\n    // compose the inner description object\n    param_pairs.push_back(serialize_pair(TYPE_KEY, type, "string"));\n    param_pairs.push_back(serialize_pair(STRUCT_KEY, "true", "bool"));\n    param_pairs.push_back(serialize_pair(ARRAY_KEY, "false", "bool"));\n    param_pairs.push_back(serialize_pair(VALUE_KEY, value.str(), "object"));\n\n    return serialize_object(param_pairs);\n}}\n\n"""
