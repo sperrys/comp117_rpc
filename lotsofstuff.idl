@@ -1,15 +1,6 @@
-void func1();
-void func2();
-void func3();
-
-int sqrt(int x, int y);
 int sum(int x[3]);
 
 int takesTwoArrays(int x[24], int y[24]);
-
-int showsArraysofArrays(int x[24], int y[24][15], int z[24][15]);
-
-string upcase(string s);
 
 struct Person {
   string firstname;
@@ -27,19 +18,12 @@ struct ThreePeople {
 void person_func(Person p);
 void people_func(ThreePeople p);
 
-Person findPerson(ThreePeople tp);
-
-float multiply(float x, float y);
-
 struct StructWithArrays {
   int aNumber;
   Person people[10];
 };
 
 struct rectangle {int x; int y;};
-
-
-int area(rectangle r);
 
 void searchRectangles(rectangle rects[200]);
 

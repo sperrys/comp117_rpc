@@ -45,7 +45,7 @@
 // AND STUBS, AND ALSO USED AS INPUT TO AUTOMATIC PROXY/STUB
 // GENERATOR PROGRAM
 
-#include "simplefunction.idl"
+#include "lotsofstuff.idl"
 
 #include "rpcproxyhelper.h"
 
@@ -118,8 +118,8 @@ main(int argc, char *argv[]) {
        int nums[3] = { 10, 2, 3};
 
        printf("Calling sum\n");
-       result = sum(nums);  // remote call (we hope!) 
-       cout << "Return from sum - result: " << result << endl;
+       int result = sum(nums);  // remote call (we hope!) 
+       cout << "Return from sum(), result: " << result << endl;
 
        ///////////////////////////////////
        printf("Calling person func \n");
