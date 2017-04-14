@@ -66,7 +66,28 @@ def handle_struct(name, sig):
 			mtype_handle = utils.add_deserialize(utils.replace_brackets(mtype)[:-1])
 			mem_string = "    " + utils.strip_type(utils.remove_prepend(mtype)) + " {num_arrays} mname = "
 			mem_string +=" {mtype_handle}(extract_object(value_obj, \"{mname}\")); \n" 
-			mem_string +="    for (int i = 0; i < {num_elements}; i++) {{ {my_name}->{mname}[i] = {mname}[i]; }}\n\n"
+			
+			indentation = "    "
+			var = "i"
+			for num_elems in utils.strip_num_elements(mtype):
+				temp_mem_string = indentation + "for (int "+var+" = 0; "+var+" < {num_elems}; "+var+"++)"
+ 				mem_string += temp_mem_string.format(num_elems=num_elems)
+ 				mem_string += "{{\n"
+				indentation += "  "
+				var += "i"
+			
+			var = var[1:]
+			accessor = ""
+			for i in range(1, num_arrays + 1):
+				accessor = "[" + var + "]" + accessor
+				var = var[1:]
+			mem_string += indentation + "{my_name}->{mname}" + accessor + " = {mname}" + accessor + ";\n"
+
+			indentation = indentation[2:]
+			for i in range(1, num_arrays + 1):
+				mem_string += indentation + "}}\n"
+				indentation = indentation[2:]
+
 			f = mem_string.format(mtype_handle=mtype_handle, num_arrays=("*" * num_arrays), mname=mname, my_name=utils.add_my(name), num_elements=utils.strip_num_elements(mtype)[0])
 			body +=f 
 	body += "\n    return *" +utils.add_my(name)+ ";\n}\n \n"
