@@ -16,17 +16,27 @@ def construct_func_decl(name, sig):
 	args = sig["arguments"]
 	argstring = ""
 
+
 	for a in args:
+		num_arrys = utils.strip_num_elements(a["type"])
+
 		# if the argument is an array
 		if utils.has_prepend(a["type"]) == True:
-			num_arrys = len(utils.strip_num_elements(a["type"]))
+			num_arrys = utils.strip_num_elements(a["type"])
 			mem_type = utils.strip_type(utils.remove_prepend(a["type"]))
 		else:
 		 	mem_type = a["type"]
 		 	num_arrys = 0
 
-		argstring += mem_type + ("*" * num_arrys) + " " + a["name"] + ", "
+		argstring += mem_type 
+		argstring += " " + a["name"]
 
+		if num_arrys != 0:
+			for l in num_arrys:
+				argstring += "[" + l + "]"
+
+
+		argstring += ", "
 	if argstring != "":
 		argstring = argstring[:-2]
 
